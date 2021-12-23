@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 import numpy as np
 
@@ -7,41 +8,64 @@ from tensorflow_time_series_dataset.preprocessors import (
     GroupbyDatasetGenerator,
 )
 
-periods = 48 * 10
-test_df = pd.DataFrame(
-    index=pd.date_range(start="1/1/1992", periods=periods, freq="30T"),
-    data=np.stack(
-        [np.random.randint(0, 10, periods), np.random.randint(20, 100, periods)],
-        axis=1,
-    ),
-    columns=["x1", "x2"],
-)
+
+@pytest.fixture
+def cycl_df():
+    date_range = pd.date_range(start="1/1/1992", end="31/12/1992", freq="30T")
+    test_df = pd.DataFrame(
+        index=date_range,
+        data=np.stack(
+            [
+                np.random.randint(0, 10, date_range.size),
+                np.random.randint(20, 100, date_range.size),
+            ],
+            axis=1,
+        ),
+        columns=["x1", "x2"],
+    )
+    return test_df
 
 
-def test_cyclical_data_encoder():
+def test_cyclical_data_encoder(cycl_df):
     encs = {
-        "x1": [9],
-        "x2": [99, 20],
-        "weekday": [6],
-        "dayofyear": [366, 1],
-        "month": [12, 1],
-        "time": [24 * 60 - 1],
+        "x1": dict(cycl_max=9),
+        "x2": dict(cycl_max=99, cycl_min=20),
+        "weekday": dict(cycl_max=6),
+        "dayofyear": dict(cycl_max=366, cycl_min=1),
+        "month": dict(cycl_max=12, cycl_min=1),
+        "time": dict(
+            cycl_max=24 * 60 - 1,
+            cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
+        ),
     }
-    for name in encs.keys():
-        if name == "time":
-            cycl = test_df.index.hour * 60 + test_df.index.minute
-        else:
-            try:
-                cycl = getattr(test_df, name)
-            except AttributeError:
-                cycl = getattr(test_df.index, name)
-        enc = CyclicalFeatureEncoder(*encs[name])
-        enc_dat = enc.encode(cycl)
+    for name, kwds in encs.items():
+        enc = CyclicalFeatureEncoder(name, **kwds)
+        enc_dat = enc(cycl_df)
+        cycl = enc.cycl_getter(cycl_df, name)
+        assert np.isclose(
+            enc.decode(enc_dat[name + "_sin"], enc_dat[name + "_cos"]), cycl
+        ).all(), "Decoding failed"
 
 
-def test_time_series_split():
-    df = test_df.assign(id=1)
-    df = df.combine_first(df.assign(id=2))
+def test_cyclical_data_encoder_except(cycl_df):
+    encs = {
+        "x1": dict(cycl_max=cycl_df.x1.max() - 1),
+        "weekday": dict(cycl_max=cycl_df.index.weekday.max() - 1),
+        "dayofyear": dict(cycl_max=cycl_df.index.dayofyear.max() - 1),
+        "month": dict(cycl_max=cycl_df.index.month.max() - 1),
+        "time": dict(
+            cycl_max=(cycl_df.index.hour * 60 + cycl_df.index.minute).max() - 1,
+            cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
+        ),
+    }
+    for name, kwds in encs.items():
+        enc = CyclicalFeatureEncoder(name, **kwds)
+        with pytest.raises(AssertionError):
+            enc(cycl_df)
+
+
+def test_time_series_split(time_series_df_with_id):
+    df = time_series_df_with_id.set_index("date_time")
     l_splitter = TimeSeriesSplit(0.5, TimeSeriesSplit.LEFT)
     r_splitter = TimeSeriesSplit(0.5, TimeSeriesSplit.RIGHT)
     l_split = l_splitter(df)
@@ -58,13 +82,22 @@ def test_time_series_split():
     ).all(), "Incomplete Days in Split"
 
 
-def test_groupby_dataset_generator(time_series_df):
-    time_series_df.set_index("date_time", inplace=True)
-    columns = list(sorted(time_series_df.columns))
+def test_groupby_dataset_generator(time_series_df_with_id):
+    time_series_df_with_id.set_index("date_time", inplace=True)
+
+    columns = list(sorted(time_series_df_with_id.columns))
+    records_per_id = time_series_df_with_id.groupby("id").x1.size().max()
+    expected_shape = (records_per_id, len(columns))
+
     idx_from_column = {c: i for i, c in enumerate(columns)}
+
     gen = GroupbyDatasetGenerator("id", columns=columns)
-    for d in gen(time_series_df):
-        id = int(d[0, idx_from_column["load"]] // 1e6)
-        assert np.allclose(
-            time_series_df[time_series_df.id == id][columns].values, d.numpy()
+    for d in gen(time_series_df_with_id):
+        assert d.shape == expected_shape, "Wrong shape"
+        id = int(d[0, idx_from_column["x1"]] // 1e6)
+        expected_values = time_series_df_with_id[time_series_df_with_id.id == id][
+            columns
+        ].values
+        assert np.all(
+            d.numpy() == expected_values,
         ), "Error: DatasetGenerator failed"

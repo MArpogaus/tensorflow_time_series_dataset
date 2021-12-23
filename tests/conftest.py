@@ -23,7 +23,7 @@ def get_value_generator(date_range, columns):
         drf, "time", 24 * 60 - 1, cycl=drf.index.hour * 60 + drf.index.minute
     )
 
-    def gen_value(id, column, line):
+    def gen_value(column, line):
         if column == "weekday":
             return date_range[line].weekday()
         elif "weekday" in column:
@@ -34,48 +34,67 @@ def get_value_generator(date_range, columns):
             return drf_time.loc[date_range[line], column]
         else:
             col_num = columns.index(column)
-            return int(f"{id:02d}{col_num:02d}{line:04d}")
+            return int(f"{col_num:02d}{line:04d}")
 
     return gen_value
 
 
-def gen_df(ids, columns, date_range):
+def gen_df(columns, date_range):
     gen_value = get_value_generator(date_range, columns)
     periods = date_range.size
+    df = pd.DataFrame(
+        {
+            "date_time": date_range,
+            **{c: [gen_value(c, l) for l in range(periods)] for c in columns},
+        }
+    )
+    return df
+
+
+def gen_df_with_id(ids, columns, date_range):
     dfs = []
     for i in ids:
-        df = pd.DataFrame(
-            {
-                "date_time": date_range,
-                "id": i,
-                **{
-                    c: [gen_value(int(i), c, l) for l in range(periods)]
-                    for n, c in enumerate(columns)
-                    if c != "weekday"
-                },
-            }
-        )
+        df = gen_df(columns, date_range)
+        df["id"] = i
+        df[columns] += i * 1e6
         dfs.append(df)
     df = pd.concat(dfs)
-    df["weekday"] = df.date_time.dt.weekday
 
     return df
 
 
-@pytest.fixture(scope="function", params=[48 * 30, 48 * 30 * 6])
+@pytest.fixture(
+    scope="function", params=[(["x1", "x2"], 48 * 30), (["x1", "x2"], 48 * 30 * 6)]
+)
 def time_series_df(request):
     df = gen_df(
-        ids=list(range(10)),
-        columns=["load", "weekday", "is_holiday"],
-        date_range=pd.date_range("1/1/1", periods=request.param, freq="30T"),
+        columns=request.param[0],
+        date_range=pd.date_range("1/1/1", periods=request.param[1], freq="30T"),
+    )
+    return df
+
+
+@pytest.fixture(
+    scope="function",
+    params=[
+        (list(range(10)), ["x1", "x2"], 48 * 30),
+        (list(range(10)), ["x1", "x2"], 48 * 30 * 6),
+    ],
+)
+def time_series_df_with_id(request):
+    ids, columns, periods = request.param
+    df = gen_df_with_id(
+        ids=ids,
+        columns=columns,
+        date_range=pd.date_range("1/1/1", periods=periods, freq="30T"),
     )
     return df
 
 
 @pytest.fixture(scope="function")
-def tmpdf(tmpdir_factory, time_series_df):
+def tmp_csv_with_id(tmpdir_factory, time_series_df_with_id):
     file_path = tmpdir_factory.mktemp("csv_data") / "test.csv"
 
-    time_series_df.to_csv(file_path, index=False)
+    time_series_df_with_id.to_csv(file_path, index=False)
 
-    return file_path, time_series_df
+    return file_path, time_series_df_with_id
