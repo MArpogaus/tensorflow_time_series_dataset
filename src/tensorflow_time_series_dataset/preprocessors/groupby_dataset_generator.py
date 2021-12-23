@@ -19,7 +19,7 @@ class GroupbyDatasetGenerator:
 
         def generator():
             for _, d in grpd:
-                yield tf.cast(d[self.columns].values, self.dtype)
+                yield d[self.columns].values
 
         return generator
 
