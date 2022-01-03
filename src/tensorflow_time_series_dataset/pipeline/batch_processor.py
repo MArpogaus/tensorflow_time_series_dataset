@@ -14,6 +14,13 @@ class BatchPreprocessor:
         self.meta_columns = meta_columns
         self.prediction_columns = prediction_columns
 
+        assert (
+            len(set(history_columns + meta_columns)) != 0
+        ), "No feature columns provided"
+        if len(history_columns):
+            assert history_size >= 0, "history_size must be a positive integer"
+        assert len(prediction_columns) != 0, "No prediction columns provided"
+
         columns = sorted(list(set(history_columns + prediction_columns + meta_columns)))
         self.column_idx = {c: i for i, c in enumerate(columns)}
 
@@ -29,18 +36,21 @@ class BatchPreprocessor:
             column = batch[:, self.history_size :, self.column_idx[c]]
             y.append(column)
 
-        if len(x_columns) == 0:
-            ValueError("No feature columns provided")
-
         for c in x_columns:
             column = batch[:, :, self.column_idx[c], None]
-            if c in self.history_columns:
+            if c in self.history_columns and self.history_size:
                 x_hist.append(column[:, : self.history_size, 0])
             if c in self.meta_columns:
                 x_meta.append(column[:, self.history_size, None, ...])
 
         y = tf.stack(y, axis=2)
-        x_hist = tf.stack(x_hist, axis=2)
-        x_meta = tf.concat(x_meta, axis=2)
+        x = []
+        if len(x_hist):
+            x.append(tf.stack(x_hist, axis=2))
+        if len(x_meta):
+            x.append(tf.concat(x_meta, axis=2))
 
-        return (x_hist, x_meta), y
+        if len(x) > 1:
+            return tuple(x), y
+        else:
+            return x[0], y
