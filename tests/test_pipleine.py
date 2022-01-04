@@ -23,10 +23,9 @@ def gen_patch(df, idx, size):
 
 def gen_batch(df, columns, size, ids, lines):
     batch = []
-    print(columns)
     for id, line in zip(ids, lines):
         if "id" in df.columns:
-            p = gen_patch(df[df.id == id][columns], line, size)
+            p = gen_patch(df[df.id == id[0]][columns], line, size)
         else:
             p = gen_patch(df[columns], line, size)
         batch.append(p)
@@ -110,7 +109,7 @@ def patched_dataset(request, time_series_df):
     return ds, df, window_size, shift
 
 
-@pytest.fixture(params=list(range(0, 48 * 4, 48)))
+@pytest.fixture(params=list(range(0, 48 * 2, 48)))
 def history_size(request):
     return request.param
 
@@ -205,9 +204,7 @@ def test_batch_processor(patched_dataset, history_size, batch_size):
     )
 
 
-@pytest.mark.parametrize(
-    "prediction_size,shift", [(1, 1), (12, 1), (48, 1), (12, 12), (48, 48)]
-)
+@pytest.mark.parametrize("prediction_size,shift", [(1, 1), (48, 1), (48, 48)])
 def test_windowed_time_series_pipeline(
     time_series_df, batch_size, history_size, prediction_size, shift
 ):
@@ -231,6 +228,39 @@ def test_windowed_time_series_pipeline(
     )
     pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
     ds = tf.data.Dataset.from_tensors(df)
+    ds = pipeline(ds)
+    ds
+    validate_batch(
+        df,
+        ds,
+        **batch_kwds,
+    )
+
+
+@pytest.mark.parametrize("prediction_size,shift", [(1, 1), (48, 1), (48, 48)])
+def test_windowed_time_series_pipeline_groupby(
+    groupby_dataset, batch_size, history_size, prediction_size, shift
+):
+    ds, df = groupby_dataset
+
+    ids = df.id.unique()
+    columns = sorted([c for c in df.columns if c != "id"])
+
+    batch_kwds = dict(
+        history_size=history_size,
+        prediction_size=prediction_size,
+        history_columns=columns[:1],
+        meta_columns=columns[1:],
+        prediction_columns=columns[:1],
+        batch_size=batch_size,
+    )
+    pipeline_kwds = dict(
+        shift=shift,
+        cycle_length=len(ids),
+        shuffle_buffer_size=1000,
+        seed=1,
+    )
+    pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
     ds = pipeline(ds)
     ds
     validate_batch(
