@@ -5,7 +5,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2021-07-29 17:57:39 (Marcel Arpogaus)
-# changed : 2022-01-03 16:51:57 (Marcel Arpogaus)
+# changed : 2022-01-04 12:11:45 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # Probabilistic Short-Term Low-Voltage Load Forecasting using
 # Bernstein-Polynomial Normalizing Flows
@@ -46,6 +46,9 @@ class WindowedTimeSeriesPipeline:
         shuffle_buffer_size,
         seed,
     ):
+        assert (
+            prediction_size > 0
+        ), "prediction_size must be a positive integer greater than zero"
         self.history_size = history_size
         self.prediction_size = prediction_size
         self.window_size = history_size + prediction_size
