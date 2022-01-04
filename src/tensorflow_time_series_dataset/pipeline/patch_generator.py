@@ -6,12 +6,11 @@ class PatchGenerator:
         self.window_size = window_size
         self.shift = shift
 
-    def __call__(self, load_data):
+    def __call__(self, data):
         def sub_to_patch(sub):
             return sub.batch(self.window_size, drop_remainder=True)
 
-        # Why is this needed?
-        data_set = tf.data.Dataset.from_tensor_slices(load_data)
+        data_set = tf.data.Dataset.from_tensor_slices(data)
 
         data_set = data_set.window(
             size=self.window_size,
