@@ -77,8 +77,8 @@ def time_series_df(request):
 @pytest.fixture(
     scope="function",
     params=[
-        (list(range(10)), ["x1", "x2"], 48 * 30),
-        (list(range(10)), ["x1", "x2"], 48 * 30 * 6),
+        (list(range(5)), ["x1", "x2"], 48 * 30),
+        (list(range(10)), ["x1", "x2"], 48 * 30 * 3),
     ],
 )
 def time_series_df_with_id(request):
@@ -92,6 +92,15 @@ def time_series_df_with_id(request):
 
 
 @pytest.fixture(scope="function")
+def tmp_csv(tmpdir_factory, time_series_df):
+    file_path = tmpdir_factory.mktemp("csv_data") / "test.csv"
+
+    time_series_df.to_csv(file_path, index=False)
+
+    return file_path, time_series_df
+
+
+@pytest.fixture(scope="function")
 def tmp_csv_with_id(tmpdir_factory, time_series_df_with_id):
     file_path = tmpdir_factory.mktemp("csv_data") / "test.csv"
 
@@ -100,14 +109,14 @@ def tmp_csv_with_id(tmpdir_factory, time_series_df_with_id):
     return file_path, time_series_df_with_id
 
 
-@pytest.fixture(params=[1] + list(range(0, 48 * 2, 48)))
+@pytest.fixture(params=[0, 1, 48])
 def history_size(request):
     return request.param
 
 
-@pytest.fixture(params=[0, 1, 48])
-def prediction_size(request):
-    return request.param
+@pytest.fixture
+def prediction_size(history_size):
+    return history_size
 
 
 @pytest.fixture
