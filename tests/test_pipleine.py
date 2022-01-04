@@ -9,83 +9,8 @@ from tensorflow_time_series_dataset.pipeline.windowed_time_series_pipeline impor
 from tensorflow_time_series_dataset.preprocessors.groupby_dataset_generator import (
     GroupbyDatasetGenerator,
 )
-
-
-def get_id_and_idx(val):
-    id = val // 1e6
-    idx = val % 1e4
-    return id, idx
-
-
-def gen_patch(df, idx, size):
-    return df.values[np.int(idx) : np.int(idx + size)]
-
-
-def gen_batch(df, columns, size, ids, lines):
-    batch = []
-    for id, line in zip(ids, lines):
-        if "id" in df.columns:
-            p = gen_patch(df[df.id == id[0]][columns], line, size)
-        else:
-            p = gen_patch(df[columns], line, size)
-        batch.append(p)
-    return np.float32(batch)
-
-
-def validate_batch(
-    df,
-    ds,
-    batch_size,
-    history_size,
-    prediction_size,
-    history_columns,
-    meta_columns,
-    prediction_columns,
-):
-    x1_shape = (batch_size, history_size, len(history_columns))
-    x2_shape = (batch_size, 1, len(meta_columns))
-    y_shape = (batch_size, prediction_size, len(meta_columns))
-    for b, (x, y) in enumerate(ds.as_numpy_iterator()):
-        x1, x2 = None, None
-        if history_size and len(history_columns) and len(meta_columns):
-            x1, x2 = x
-        elif history_size and len(history_columns):
-            x1 = x
-        elif len(meta_columns):
-            x2 = x
-
-        if x1 is not None:
-            assert x1.shape == x1_shape, f"Wrong shape: history ({b})"
-            first_val = x1[:, 0]
-            ids, lines = get_id_and_idx(first_val)
-
-            assert np.all(
-                x1 == gen_batch(df, history_columns, history_size, ids, lines)
-            ), f"Wrong data: history ({b})"
-            if x2 is not None:
-                assert np.all(
-                    x2 == gen_batch(df, meta_columns, 1, ids, lines + history_size)
-                ), f"Wrong data: meta ({b})"
-
-            if history_columns == prediction_columns:
-                y_test = x1[:, -prediction_size:] + prediction_size
-                assert np.all(y == y_test), f"Wrong data: prediction ({b})"
-
-        if x2 is not None:
-            first_val = x2[:, 0]
-            ids, lines = get_id_and_idx(first_val)
-            assert x2.shape == x2_shape, f"Wrong shape: meta ({b})"
-            assert np.all(
-                x2 == gen_batch(df, meta_columns, 1, ids, lines)
-            ), f"Wrong data: meta ({b})"
-
-        assert y.shape == y_shape, f"Wrong shape: prediction ({b})"
-        first_val = y[:, 0]
-        ids, lines = get_id_and_idx(first_val)
-        assert np.all(
-            y == gen_batch(df, prediction_columns, prediction_size, ids, lines)
-        ), f"Wrong data: prediction ({b})"
-
+from tensorflow_time_series_dataset.utils.test import validate_dataset
+from tensorflow_time_series_dataset.utils.test import get_ctxmgr
 
 # FIXTURES ####################################################################
 @pytest.fixture
@@ -107,16 +32,6 @@ def patched_dataset(request, time_series_df):
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
     return ds, df, window_size, shift
-
-
-@pytest.fixture(params=list(range(0, 48 * 2, 48)))
-def history_size(request):
-    return request.param
-
-
-@pytest.fixture(params=[4, 32])
-def batch_size(request):
-    return request.param
 
 
 # TESTS #######################################################################
@@ -195,7 +110,7 @@ def test_batch_processor(patched_dataset, history_size, batch_size):
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
 
-    validate_batch(
+    validate_dataset(
         df,
         ds_batched,
         batch_size=batch_size,
@@ -204,7 +119,6 @@ def test_batch_processor(patched_dataset, history_size, batch_size):
     )
 
 
-@pytest.mark.parametrize("prediction_size,shift", [(1, 1), (48, 1), (48, 48)])
 def test_windowed_time_series_pipeline(
     time_series_df, batch_size, history_size, prediction_size, shift
 ):
@@ -226,18 +140,19 @@ def test_windowed_time_series_pipeline(
         shuffle_buffer_size=100,
         seed=1,
     )
-    pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
-    ds = tf.data.Dataset.from_tensors(df)
-    ds = pipeline(ds)
-    ds
-    validate_batch(
-        df,
-        ds,
-        **batch_kwds,
-    )
+
+    with get_ctxmgr(prediction_size):
+        pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
+        ds = tf.data.Dataset.from_tensors(df)
+        ds = pipeline(ds)
+        ds
+        validate_dataset(
+            df,
+            ds,
+            **batch_kwds,
+        )
 
 
-@pytest.mark.parametrize("prediction_size,shift", [(1, 1), (48, 1), (48, 48)])
 def test_windowed_time_series_pipeline_groupby(
     groupby_dataset, batch_size, history_size, prediction_size, shift
 ):
@@ -260,11 +175,12 @@ def test_windowed_time_series_pipeline_groupby(
         shuffle_buffer_size=1000,
         seed=1,
     )
-    pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
-    ds = pipeline(ds)
-    ds
-    validate_batch(
-        df,
-        ds,
-        **batch_kwds,
-    )
+    with get_ctxmgr(prediction_size):
+        pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
+        ds = pipeline(ds)
+        ds
+        validate_dataset(
+            df,
+            ds,
+            **batch_kwds,
+        )

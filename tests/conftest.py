@@ -98,3 +98,23 @@ def tmp_csv_with_id(tmpdir_factory, time_series_df_with_id):
     time_series_df_with_id.to_csv(file_path, index=False)
 
     return file_path, time_series_df_with_id
+
+
+@pytest.fixture(params=[1] + list(range(0, 48 * 2, 48)))
+def history_size(request):
+    return request.param
+
+
+@pytest.fixture(params=[0, 1, 48])
+def prediction_size(request):
+    return request.param
+
+
+@pytest.fixture
+def shift(prediction_size):
+    return prediction_size
+
+
+@pytest.fixture(params=[4, 32])
+def batch_size(request):
+    return request.param
