@@ -13,10 +13,8 @@ setup(
     author_email="marcel.arpogaus@gmail.com",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    install_requires=[
-        "tensorflow==2.6.*",
-    ],
-    description="A tensorflow dataset from time series data.",
+    install_requires=["tensorflow==2.6.*", "pandas==1.3.*"],
+    description="A TensorFlow dataset from time-series data.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
