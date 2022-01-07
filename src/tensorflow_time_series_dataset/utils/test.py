@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2022-01-07 14:50:51 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -42,7 +42,7 @@ def gen_batch(df, columns, size, ids, lines):
     batch = []
     for id, line in zip(ids, lines):
         if "id" in df.columns:
-            p = gen_patch(df[df.id == id[0]][columns], line, size)
+            p = gen_patch(df[df.id == id][columns], line, size)
         else:
             p = gen_patch(df[columns], line, size)
         batch.append(p)
@@ -58,12 +58,21 @@ def validate_dataset(
     history_columns,
     meta_columns,
     prediction_columns,
+    history_reference_column="ref",
+    meta_reference_column="ref",
+    prediction_reference_column="ref",
 ):
     x1_shape = (batch_size, history_size, len(history_columns))
     x2_shape = (batch_size, 1, len(meta_columns))
-    y_shape = (batch_size, prediction_size, len(meta_columns))
+    y_shape = (batch_size, prediction_size, len(prediction_columns))
+    history_columns = list(sorted(history_columns))
+    meta_columns = list(sorted(meta_columns))
+    prediction_columns = list(sorted(prediction_columns))
+    history_columns_idx = {c: i for i, c in enumerate(history_columns)}
+    meta_columns_idx = {c: i for i, c in enumerate(meta_columns)}
+    prediction_columns_idx = {c: i for i, c in enumerate(prediction_columns)}
+
     for b, (x, y) in enumerate(ds.as_numpy_iterator()):
-        print(y.shape)
         x1, x2 = None, None
         if history_size and len(history_columns) and len(meta_columns):
             x1, x2 = x
@@ -74,9 +83,8 @@ def validate_dataset(
 
         if x1 is not None:
             assert x1.shape == x1_shape, f"Wrong shape: history ({b})"
-            first_val = x1[:, 0]
+            first_val = x1[:, 0, history_columns_idx[history_reference_column]]
             ids, lines = get_id_and_idx(first_val)
-
             assert np.all(
                 x1 == gen_batch(df, history_columns, history_size, ids, lines)
             ), f"Wrong data: history ({b})"
@@ -85,13 +93,13 @@ def validate_dataset(
                     x2 == gen_batch(df, meta_columns, 1, ids, lines + history_size)
                 ), f"wrong data: meta not consecutive ({b})"
 
-            last_val = x1[:, -1]
+            last_val = x1[:, -1, history_columns_idx[history_reference_column]]
             ids, lines = get_id_and_idx(last_val)
             y_test = gen_batch(df, prediction_columns, prediction_size, ids, lines + 1)
             assert np.all(y == y_test), f"Wrong data: prediction not consecutive ({b})"
 
         if x2 is not None:
-            first_val = x2[:, 0]
+            first_val = x2[:, 0, meta_columns_idx[meta_reference_column]]
             ids, lines = get_id_and_idx(first_val)
             assert x2.shape == x2_shape, f"Wrong shape: meta ({b})"
             assert np.all(
@@ -99,18 +107,40 @@ def validate_dataset(
             ), f"Wrong data: meta ({b})"
 
         assert y.shape == y_shape, f"Wrong shape: prediction ({b})"
-        first_val = y[:, 0]
+        first_val = y[:, 0, prediction_columns_idx[prediction_reference_column]]
         ids, lines = get_id_and_idx(first_val)
         assert np.all(
             y == gen_batch(df, prediction_columns, prediction_size, ids, lines)
         ), f"Wrong data: prediction ({b})"
 
 
-def get_ctxmgr(prediction_size):
+def get_ctxmgr(
+    prediction_size, history_columns, meta_columns, history_size, prediction_columns
+):
     if prediction_size <= 0:
         ctxmgr = pytest.raises(
             AssertionError,
             match="prediction_size must be a positive integer greater than zero",
+        )
+    elif len(set(history_columns + meta_columns)) == 0:
+        ctxmgr = pytest.raises(
+            AssertionError,
+            match="No feature columns provided",
+        )
+    elif len(meta_columns) == 0 and history_size <= 0:
+        ctxmgr = pytest.raises(
+            AssertionError,
+            match="history_size must be a positive integer greater than zero, when no meta date is used",
+        )
+    elif history_size < 0:
+        ctxmgr = pytest.raises(
+            AssertionError,
+            match="history_size must be a positive integer",
+        )
+    elif len(prediction_columns) == 0:
+        ctxmgr = pytest.raises(
+            AssertionError,
+            match="No prediction columns provided",
         )
     else:
         ctxmgr = does_not_raise()

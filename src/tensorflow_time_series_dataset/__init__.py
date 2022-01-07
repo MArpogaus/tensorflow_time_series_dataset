@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2022-01-07 16:12:49 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,4 +22,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-from .windowed_time_series_dataset_factory import WindowedTimeSeriesDataSetFactory
+from .windowed_time_series_dataset_factory import WindowedTimeSeriesDatasetFactory

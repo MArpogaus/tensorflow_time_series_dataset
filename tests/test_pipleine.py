@@ -14,19 +14,24 @@ from tensorflow_time_series_dataset.utils.test import get_ctxmgr
 
 # FIXTURES ####################################################################
 @pytest.fixture
-def groupby_dataset(time_series_df_with_id):
+def groupby_dataset(
+    time_series_df_with_id, history_columns, meta_columns, prediction_columns
+):
     time_series_df_with_id.set_index("date_time", inplace=True)
-    columns = list(sorted([c for c in time_series_df_with_id.columns if c != "id"]))
-    gen = GroupbyDatasetGenerator("id", columns=columns)
-    return gen(time_series_df_with_id), time_series_df_with_id
+    used_cols = set(history_columns + meta_columns + prediction_columns)
+    gen = GroupbyDatasetGenerator("id", columns=used_cols)
+    return gen(time_series_df_with_id), time_series_df_with_id[list(used_cols) + ["id"]]
 
 
 @pytest.fixture
-def patched_dataset(request, time_series_df):
+def patched_dataset(
+    request, time_series_df, history_columns, meta_columns, prediction_columns
+):
     window_size, shift = request.param
     df = time_series_df.set_index("date_time")
+    used_cols = set(history_columns + meta_columns + prediction_columns)
 
-    ds = tf.data.Dataset.from_tensors(df)
+    ds = tf.data.Dataset.from_tensors(df[sorted(used_cols)])
     ds = ds.interleave(
         PatchGenerator(window_size=window_size, shift=shift),
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
@@ -62,7 +67,7 @@ def test_patch_generator(time_series_df, window_size, shift):
 @pytest.mark.parametrize("window_size,shift", [(2 * 48, 48), (48 + 1, 1)])
 def test_patch_generator_groupby(groupby_dataset, window_size, shift):
     ds, df = groupby_dataset
-    records_per_id = df.groupby("id").x1.size().max()
+    records_per_id = df.groupby("id").size().max()
     ids = df.id.unique()
     columns = sorted([c for c in df.columns if c != "id"])
 
@@ -78,60 +83,83 @@ def test_patch_generator_groupby(groupby_dataset, window_size, shift):
 
     for i, patch in enumerate(ds_patched.as_numpy_iterator()):
         assert patch.shape == expected_shape, "Wrong shape"
-        x1 = patch[0, 0]
-        id = int(x1 // 1e6)
-        idx = int(x1 % 1e4)
-        expected_values = df[df.id == id].iloc[idx : idx + window_size]
-        assert np.all(
-            patch == expected_values[columns].values
-        ), "Patch contains wrong data"
+        if len(columns):
+            x1 = patch[0, 0]
+            id = int(x1 // 1e6)
+            idx = int(x1 % 1e4)
+            expected_values = df[df.id == id].iloc[idx : idx + window_size]
+            assert np.all(
+                patch == expected_values[columns].values
+            ), "Patch contains wrong data"
     assert i + 1 == patches, "Not enough patches"
 
 
 @pytest.mark.parametrize(
     "patched_dataset", [(2 * 48, 48), (48 + 1, 1)], indirect=["patched_dataset"]
 )
-def test_batch_processor(patched_dataset, history_size, batch_size):
+def test_batch_processor(
+    patched_dataset,
+    history_size,
+    batch_size,
+    history_columns,
+    meta_columns,
+    prediction_columns,
+):
     ds, df, window_size, shift = patched_dataset
     prediction_size = window_size - history_size
 
-    columns = list(sorted(df.columns))
-
     batch_kwds = dict(
         history_size=history_size,
-        history_columns=columns[:1],
-        meta_columns=columns[1:],
-        prediction_columns=columns[:1],
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
     )
 
-    ds_batched = ds.batch(batch_size, drop_remainder=True)
-    ds_batched = ds_batched.map(
-        BatchPreprocessor(**batch_kwds),
-        num_parallel_calls=tf.data.experimental.AUTOTUNE,
-    )
-
-    validate_dataset(
-        df,
-        ds_batched,
-        batch_size=batch_size,
+    with get_ctxmgr(
+        history_size=history_size,
         prediction_size=prediction_size,
-        **batch_kwds,
-    )
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
+    ):
+        ds_batched = ds.batch(batch_size, drop_remainder=True)
+        ds_batched = ds_batched.map(
+            BatchPreprocessor(**batch_kwds),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+        )
+
+        validate_dataset(
+            df,
+            ds_batched,
+            batch_size=batch_size,
+            prediction_size=prediction_size,
+            **batch_kwds,
+        )
 
 
 def test_windowed_time_series_pipeline(
-    time_series_df, batch_size, history_size, prediction_size, shift
+    time_series_df,
+    batch_size,
+    history_size,
+    prediction_size,
+    shift,
+    history_columns,
+    meta_columns,
+    prediction_columns,
 ):
     df = time_series_df.set_index("date_time")
-
-    columns = list(sorted(df.columns))
+    used_cols = sorted(
+        set(
+            history_columns + meta_columns + prediction_columns,
+        )
+    )
 
     batch_kwds = dict(
         history_size=history_size,
         prediction_size=prediction_size,
-        history_columns=columns[:1],
-        meta_columns=columns[1:],
-        prediction_columns=columns[:1],
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
         batch_size=batch_size,
     )
     pipeline_kwds = dict(
@@ -141,9 +169,15 @@ def test_windowed_time_series_pipeline(
         seed=1,
     )
 
-    with get_ctxmgr(prediction_size):
+    with get_ctxmgr(
+        history_size=history_size,
+        prediction_size=prediction_size,
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
+    ):
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
-        ds = tf.data.Dataset.from_tensors(df)
+        ds = tf.data.Dataset.from_tensors(df[used_cols])
         ds = pipeline(ds)
         ds
         validate_dataset(
@@ -154,19 +188,25 @@ def test_windowed_time_series_pipeline(
 
 
 def test_windowed_time_series_pipeline_groupby(
-    groupby_dataset, batch_size, history_size, prediction_size, shift
+    groupby_dataset,
+    batch_size,
+    history_size,
+    prediction_size,
+    shift,
+    history_columns,
+    meta_columns,
+    prediction_columns,
 ):
     ds, df = groupby_dataset
 
     ids = df.id.unique()
-    columns = sorted([c for c in df.columns if c != "id"])
 
     batch_kwds = dict(
         history_size=history_size,
         prediction_size=prediction_size,
-        history_columns=columns[:1],
-        meta_columns=columns[1:],
-        prediction_columns=columns[:1],
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
         batch_size=batch_size,
     )
     pipeline_kwds = dict(
@@ -175,7 +215,14 @@ def test_windowed_time_series_pipeline_groupby(
         shuffle_buffer_size=1000,
         seed=1,
     )
-    with get_ctxmgr(prediction_size):
+
+    with get_ctxmgr(
+        history_size=history_size,
+        prediction_size=prediction_size,
+        history_columns=history_columns,
+        meta_columns=meta_columns,
+        prediction_columns=prediction_columns,
+    ):
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = pipeline(ds)
         ds

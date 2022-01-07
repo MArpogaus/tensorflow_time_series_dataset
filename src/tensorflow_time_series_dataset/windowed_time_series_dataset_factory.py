@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2022-01-07 16:12:30 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -26,19 +26,31 @@ import tensorflow as tf
 from .pipeline import WindowedTimeSeriesPipeline
 
 
-class WindowedTimeSeriesDataSetFactory:
+class WindowedTimeSeriesDatasetFactory:
     default_pipline_kwds = dict(
         shift=None,
         batch_size=32,
-        cycle_length=100,
+        cycle_length=1,
         shuffle_buffer_size=1000,
         seed=42,
     )
 
-    def __init__(self, **pipline_kwds):
+    def __init__(
+        self,
+        history_columns,
+        prediction_columns,
+        meta_columns=[],
+        dtype=tf.float32,
+        **pipline_kwds
+    ):
+        self.columns = set(history_columns + meta_columns + prediction_columns)
         self.preprocessors = []
         self.data_loader = None
+        self.dtype = dtype
         self.data_pipeline = WindowedTimeSeriesPipeline(
+            history_columns=history_columns,
+            meta_columns=meta_columns,
+            prediction_columns=prediction_columns,
             **{**self.default_pipline_kwds, **pipline_kwds}
         )
 
@@ -60,7 +72,9 @@ class WindowedTimeSeriesDataSetFactory:
             data = preprocessor(data)
 
         if not isinstance(data, tf.data.Dataset):
-            data = tf.data.Dataset.from_tensors(data)
+            data = data[sorted(self.columns)]
+            tensors = tf.convert_to_tensor(data, dtype=self.dtype)
+            data = tf.data.Dataset.from_tensors(tensors)
 
         ds = self.data_pipeline(data)
         return ds

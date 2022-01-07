@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2022-01-07 14:50:17 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -41,14 +41,19 @@ class BatchPreprocessor:
         assert (
             len(set(history_columns + meta_columns)) != 0
         ), "No feature columns provided"
-        if len(history_columns):
+        if len(meta_columns) == 0:
+            assert history_size > 0, (
+                "history_size must be a positive integer greater than zero"
+                ", when no meta date is used"
+            )
+        else:
             assert history_size >= 0, "history_size must be a positive integer"
         assert len(prediction_columns) != 0, "No prediction columns provided"
 
         columns = sorted(list(set(history_columns + prediction_columns + meta_columns)))
         self.column_idx = {c: i for i, c in enumerate(columns)}
 
-    def __call__(self, batch):
+    def __call__(self, patch):
         y = []
         x_hist = []
         x_meta = []
@@ -56,13 +61,17 @@ class BatchPreprocessor:
         x_columns = sorted(set(self.history_columns + self.meta_columns))
         y_columns = sorted(self.prediction_columns)
 
+        assert (
+            len(set(x_columns + y_columns)) == patch.shape[-1]
+        ), "Patch shape dos not match column number"
+
         for c in y_columns:
-            column = batch[:, self.history_size :, self.column_idx[c]]
+            column = patch[:, self.history_size :, self.column_idx[c]]
             y.append(column)
 
         for c in x_columns:
-            column = batch[:, :, self.column_idx[c], None]
-            if c in self.history_columns and self.history_size:
+            column = patch[:, :, self.column_idx[c], None]
+            if self.history_size and c in self.history_columns:
                 x_hist.append(column[:, : self.history_size, 0])
             if c in self.meta_columns:
                 x_meta.append(column[:, self.history_size, None, ...])

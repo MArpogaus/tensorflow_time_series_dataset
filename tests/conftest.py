@@ -1,51 +1,29 @@
+import itertools
 import pytest
 import pandas as pd
 import numpy as np
 
-# ref.: https://www.kaggle.com/avanwyk/encoding-cyclical-features-for-deep-learning
-def encode(data, cycl_name, cycl_max, cycl_min=0, cycl=None):
-    if cycl is None:
-        cycl = getattr(data.index, cycl_name)
-    data[cycl_name + "_sin"] = np.float32(
-        np.sin(2 * np.pi * (cycl - cycl_min) / (cycl_max - cycl_min + 1))
-    )
-    data[cycl_name + "_cos"] = np.float32(
-        np.cos(2 * np.pi * (cycl - cycl_min) / (cycl_max - cycl_min + 1))
-    )
-    return data
+columns = ["ref", "x1", "x2"]
 
 
 def get_value_generator(date_range, columns):
-    drf = date_range.to_frame()
-    drf_weekday = encode(drf, "weekday", 6, cycl=drf.index.weekday)
-    drf_dayofyear = encode(drf, "dayofyear", 366, 1)
-    drf_time = encode(
-        drf, "time", 24 * 60 - 1, cycl=drf.index.hour * 60 + drf.index.minute
-    )
-
-    def gen_value(column, line):
+    def gen_value(column, line, id=0):
         if column == "weekday":
             return date_range[line].weekday()
-        elif "weekday" in column:
-            return drf_weekday.loc[date_range[line], column]
-        elif "dayofyear" in column:
-            return drf_dayofyear.loc[date_range[line], column]
-        elif "time" in column:
-            return drf_time.loc[date_range[line], column]
         else:
             col_num = columns.index(column)
-            return int(f"{col_num:02d}{line:04d}")
+            return int(f"{col_num:02d}{line:04d}") + (id * 1e6)
 
     return gen_value
 
 
-def gen_df(columns, date_range):
+def gen_df(columns, date_range, id=0):
     gen_value = get_value_generator(date_range, columns)
     periods = date_range.size
     df = pd.DataFrame(
         {
             "date_time": date_range,
-            **{c: [gen_value(c, l) for l in range(periods)] for c in columns},
+            **{c: [gen_value(c, l, id) for l in range(periods)] for c in columns},
         }
     )
     return df
@@ -54,9 +32,8 @@ def gen_df(columns, date_range):
 def gen_df_with_id(ids, columns, date_range):
     dfs = []
     for i in ids:
-        df = gen_df(columns, date_range)
+        df = gen_df(columns, date_range, i)
         df["id"] = i
-        df[columns] += i * 1e6
         dfs.append(df)
     df = pd.concat(dfs)
 
@@ -64,7 +41,8 @@ def gen_df_with_id(ids, columns, date_range):
 
 
 @pytest.fixture(
-    scope="function", params=[(["x1", "x2"], 48 * 30), (["x1", "x2"], 48 * 30 * 6)]
+    scope="function",
+    params=[(columns + ["weekday"], 48 * 30 * 3)],
 )
 def time_series_df(request):
     df = gen_df(
@@ -77,8 +55,7 @@ def time_series_df(request):
 @pytest.fixture(
     scope="function",
     params=[
-        (list(range(5)), ["x1", "x2"], 48 * 30),
-        (list(range(10)), ["x1", "x2"], 48 * 30 * 3),
+        (list(range(5)), columns + ["weekday"], 48 * 30 * 3),
     ],
 )
 def time_series_df_with_id(request):
@@ -124,6 +101,39 @@ def shift(prediction_size):
     return prediction_size
 
 
-@pytest.fixture(params=[4, 32])
+@pytest.fixture(params=[32])
 def batch_size(request):
     return request.param
+
+
+@pytest.fixture(params=[[], ["ref"], ["x2", "ref"], columns])
+def history_columns(request):
+    return request.param
+
+
+@pytest.fixture(params=[[], ["ref", "weekday"]])
+def meta_columns(request):
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        [],
+        list(
+            itertools.chain(
+                ["ref"],
+                *[
+                    [c + "_sin", c + "_cos"]
+                    for c in ["weekday", "dayofyear", "time", "month"]
+                ],
+            )
+        ),
+    ]
+)
+def meta_columns_cycle(request):
+    return request.param
+
+
+@pytest.fixture
+def prediction_columns(history_columns):
+    return history_columns
