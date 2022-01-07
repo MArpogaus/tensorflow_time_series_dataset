@@ -10,10 +10,10 @@
 
 1.  [About The Project](#about-the-project)
 2.  [Usage](#usage)
-    1.  [Example Data](#org7c75667)
-    2.  [Single-Step Prediction](#orgd939b15)
-    3.  [Multi-Step Prediction](#org55070f1)
-    4.  [Add Meta data as features](#org876f56c)
+    1.  [Example Data](#org62ac303)
+    2.  [Single-Step Prediction](#org5c0e42d)
+    3.  [Multi-Step Prediction](#org31a5c64)
+    4.  [Add Meta data as features](#org1c91d16)
 3.  [Contributing](#contributing)
 4.  [License](#license)
 5.  [Contact](#contact)
@@ -32,7 +32,7 @@ This python packages should help you to create TensorFlow datasets for time-seri
 # Usage
 
 
-<a id="org7c75667"></a>
+<a id="org62ac303"></a>
 
 ## Example Data
 
@@ -62,14 +62,14 @@ Suppose you have a dataset in the following form:
     test_df.head()
 
                                x1        x2        x3
-    1992-01-01 00:00:00  0.075585  1.494057  2.218411
-    1992-01-01 00:30:00  0.002626  0.894208  2.039533
-    1992-01-01 01:00:00  0.046454  0.529587  2.066533
-    1992-01-01 01:30:00  0.320631  1.071333  1.986123
-    1992-01-01 02:00:00 -0.540393  1.085246  2.805066
+    1992-01-01 00:00:00  0.258083  0.902987  1.617639
+    1992-01-01 00:30:00  0.203509  1.414581  1.771407
+    1992-01-01 01:00:00  0.013242  1.774091  2.686694
+    1992-01-01 01:30:00  0.351366  1.142042  1.304276
+    1992-01-01 02:00:00  0.158146 -0.222801  2.538896
 
 
-<a id="orgd939b15"></a>
+<a id="org5c0e42d"></a>
 
 ## Single-Step Prediction
 
@@ -109,7 +109,7 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.png)
 
 
-<a id="org55070f1"></a>
+<a id="org31a5c64"></a>
 
 ## Multi-Step Prediction
 
@@ -141,7 +141,7 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.png)
 
 
-<a id="org876f56c"></a>
+<a id="org1c91d16"></a>
 
 ## Add Meta data as features
 
@@ -168,6 +168,8 @@ this module contains the factory class `WindowedTimeSeriesDatasetFactory` to cre
     ds3
 
 This returns the following TensorFlow Dataset:
+
+    <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
 
 Again, lets plot the results to see what changed:
 

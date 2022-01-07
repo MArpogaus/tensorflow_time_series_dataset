@@ -160,7 +160,7 @@ fname
 *** Add Meta data as features
 this module contains the factory class =WindowedTimeSeriesDatasetFactory= to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 #+NAME: ds3
-#+begin_src python :session
+#+begin_src python :session :exports both
 import itertools
 from tensorflow_time_series_dataset.preprocessors import CyclicalFeatureEncoder
 encs = {
@@ -183,6 +183,7 @@ ds3
 #+end_src
 
 This returns the following TensorFlow Dataset:
+
 #+RESULTS: ds3
 : <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
 
