@@ -1,4 +1,5 @@
 # Inspired by: https://github.com/othneildrew/Best-README-Template -->
+#+OPTIONS: toc:nil
 
 [[https://github.com/MArpogaus/tensorflow_timeseries_dataset/graphs/contributors][https://img.shields.io/github/contributors/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square]]
 [[https://github.com/MArpogaus/tensorflow_timeseries_dataset/network/members][https://img.shields.io/github/forks/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square]]
@@ -6,6 +7,8 @@
 [[https://github.com/MArpogaus/tensorflow_timeseries_dataset/issues][https://img.shields.io/github/issues/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square]]
 [[https://github.com/MArpogaus/tensorflow_timeseries_dataset/blob/master/LICENSE][https://img.shields.io/github/license/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square]]
 [[https://linkedin.com/in/MArpogaus][https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555]]
+
+#+TOC: headlines 2
 
 ** About The Project
    :PROPERTIES:
@@ -102,6 +105,8 @@ This returns the following TensorFlow Dataset:
 #+RESULTS: ds1
 : <PrefetchDataset shapes: ((4, 48, 3), (4, 1, 1)), types: (tf.float32, tf.float32)>
 
+We can plot the result with the utility function =plot_path=:
+
 #+NAME: ds1_plot
 #+begin_src python :session :results file :exports both
 from tensorflow_time_series_dataset.utils.visualisation import plot_patch
@@ -118,7 +123,6 @@ fname
 
 #+RESULTS: ds1_plot
 [[file:.images/example1.png]]
-
 *** Multi-Step Prediction
 Lets now change the prediction size to a whole day consisting of =6= half-hour time-steps.
 #+Name: ds2
@@ -136,6 +140,7 @@ This returns the following TensorFlow Dataset:
 #+RESULTS: ds2
 : <PrefetchDataset shapes: ((4, 48, 3), (4, 6, 1)), types: (tf.float32, tf.float32)>
 
+Again, lets plot the results to see what changed:
 #+NAME: ds2_plot
 #+begin_src python :session :results file :exports both
 fig=plot_patch(
@@ -181,6 +186,7 @@ This returns the following TensorFlow Dataset:
 #+RESULTS: ds3
 : <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
 
+Again, lets plot the results to see what changed:
 #+NAME: ds3_plot
 #+begin_src python :session :results file :exports both
 fig=plot_patch(
@@ -211,9 +217,9 @@ the tag "enhancement". Don't forget to give the project a star! Thanks
 again!
 
 1. Fork the Project
-2. Create your Feature Branch (Symbol's value as variable is void: git)
-3. Commit your Changes (Symbol's value as variable is void: git)
-4. Push to the Branch (Symbol's value as variable is void: git)
+2. Create your Feature Branch
+3. Commit your Changes
+4. Push to the Branch
 5. Open a Pull Request
 
 Any contributions are *greatly appreciated*.
