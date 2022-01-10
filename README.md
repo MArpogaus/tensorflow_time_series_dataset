@@ -6,40 +6,42 @@
 [![img](https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555)](https://linkedin.com/in/MArpogaus)
 
 
-# Table of Contents
+# TensorFlow time-series Dataset
 
 1.  [About The Project](#about-the-project)
 2.  [Usage](#usage)
-    1.  [Example Data](#org172632d)
-    2.  [Single-Step Prediction](#org660c3b2)
-    3.  [Multi-Step Prediction](#org487b8c3)
-    4.  [Preprocessing: Add Metadata features](#orgae97c2b)
-3.  [Contributing](#contributing)
-4.  [License](#license)
-5.  [Contact](#contact)
-6.  [Acknowledgments](#acknowledgments)
+    1.  [Example Data](#org705c8ce)
+    2.  [Single-Step Prediction](#orge605148)
+    3.  [Multi-Step Prediction](#org46070f1)
+    4.  [Preprocessing: Add Metadata features](#org6f4b42f)
+3.  [License](#license)
+4.  [Contact](#contact)
+5.  [Acknowledgments](#acknowledgments)
 
 
 <a id="about-the-project"></a>
 
-# About The Project
+## About The Project
 
-This python packages should help you to create TensorFlow datasets for time-series data.
+This python package should help you to create TensorFlow datasets for time-series data.
 
 
 <a id="usage"></a>
 
-# Usage
+## Usage
 
 
-<a id="org172632d"></a>
+<a id="org705c8ce"></a>
 
-## Example Data
+### Example Data
 
 Suppose you have a dataset in the following form:
 
     import numpy as np
     import pandas as pd
+    
+    # make things determeinisteic
+    np.random.seed(1)
     
     columns=['x1', 'x2', 'x3']
     periods=48 * 14
@@ -62,16 +64,16 @@ Suppose you have a dataset in the following form:
     test_df.head()
 
                                x1        x2        x3
-    1992-01-01 00:00:00 -0.282495  0.824307  1.986228
-    1992-01-01 00:30:00  0.056311  1.288896  1.875381
-    1992-01-01 01:00:00 -0.272162  0.662390  1.956936
-    1992-01-01 01:30:00 -0.075224  0.765020  1.940887
-    1992-01-01 02:00:00  0.343781  0.652433  1.864976
+    1992-01-01 00:00:00  0.812173  1.205133  1.578044
+    1992-01-01 00:30:00 -0.305878  1.429935  1.413295
+    1992-01-01 01:00:00 -0.264086  0.550658  1.602187
+    1992-01-01 01:30:00 -0.536484  1.159828  1.644974
+    1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="org660c3b2"></a>
+<a id="orge605148"></a>
 
-## Single-Step Prediction
+### Single-Step Prediction
 
 The factory class `WindowedTimeSeriesDatasetFactory` is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 We will use it now to create a dataset with `48` historic time-steps as the input to predict a single time-step in the future.
@@ -109,11 +111,11 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.png)
 
 
-<a id="org487b8c3"></a>
+<a id="org46070f1"></a>
 
-## Multi-Step Prediction
+### Multi-Step Prediction
 
-Lets now increase the change the prediction size to `6` half-hour time-steps.
+Lets now increase the prediction size to `6` half-hour time-steps.
 
     factory_kwds.update(dict(
         prediction_size=6
@@ -141,9 +143,9 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.png)
 
 
-<a id="orgae97c2b"></a>
+<a id="org6f4b42f"></a>
 
-## Preprocessing: Add Metadata features
+### Preprocessing: Add Metadata features
 
 Preprocessors can be used to transform the data before it is fed into the model.
 A Preprocessor can be any python callable.
@@ -188,38 +190,16 @@ Again, lets plot the results to see what changed:
 ![img](.images/example3.png)
 
 
-<a id="contributing"></a>
-
-# Contributing
-
-Contributions are what make the open source community such an amazing
-place to learn, inspire, and create. Any contributions you make are
-**greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the
-repo and create a pull request. You can also simply open an issue with
-the tag &ldquo;enhancement&rdquo;. Don&rsquo;t forget to give the project a star! Thanks
-again!
-
-1.  Fork the Project
-2.  Create your Feature Branch
-3.  Commit your Changes
-4.  Push to the Branch
-5.  Open a Pull Request
-
-Any contributions are **greatly appreciated**.
-
-
 <a id="license"></a>
 
-# License
+## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
 <a id="contact"></a>
 
-# Contact
+## Contact
 
 [Marcel Arpogaus](https://github.com/marpogaus) - [marcel.arpogaus@gmail.com](mailto:marcel.arpogaus@gmail.com)
 
@@ -229,7 +209,7 @@ Project Link:
 
 <a id="acknowledgments"></a>
 
-# Acknowledgments
+## Acknowledgments
 
 Parts of this work have been funded by the Federal Ministry for the Environment, Nature Conservation and Nuclear Safety due to a decision of the German Federal Parliament (AI4Grids: 67KI2012A).
 
