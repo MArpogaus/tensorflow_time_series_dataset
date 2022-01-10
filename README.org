@@ -74,14 +74,14 @@ test_df.head()
 
 #+RESULTS:
 :                            x1        x2        x3
-: 1992-01-01 00:00:00 -0.703962  1.806191  2.180241
-: 1992-01-01 00:30:00  0.022343  0.813200  2.609294
-: 1992-01-01 01:00:00 -0.033567  1.330009  1.791400
-: 1992-01-01 01:30:00  0.170615  0.702265  2.313323
-: 1992-01-01 02:00:00 -0.427118  1.156591  2.623082
+: 1992-01-01 00:00:00  0.164779  1.065385  1.898858
+: 1992-01-01 00:30:00  0.105352  0.508127  1.540083
+: 1992-01-01 01:00:00 -0.766406  1.430624  1.626804
+: 1992-01-01 01:30:00 -0.422850  0.869291  2.327598
+: 1992-01-01 02:00:00 -0.755304  1.832349  2.670264
 
 *** Single-Step Prediction
-this module contains the factory class =WindowedTimeSeriesDatasetFactory= to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
+The factory class =WindowedTimeSeriesDatasetFactory= is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 We will use it now to create a dataset with =48= historic time-steps as the input to predict a single time-step in the future.
 
 #+NAME: ds1
@@ -124,7 +124,7 @@ fname
 #+RESULTS: ds1_plot
 [[file:.images/example1.png]]
 *** Multi-Step Prediction
-Lets now change the prediction size to a whole day consisting of =6= half-hour time-steps.
+Lets now increase the change the prediction size to =6= half-hour time-steps.
 #+Name: ds2
 #+begin_src python :session :exports both
 factory_kwds.update(dict(
@@ -157,8 +157,10 @@ fname
 #+RESULTS: ds2_plot
 [[file:.images/example2.png]]
 
-*** Add Meta data as features
-this module contains the factory class =WindowedTimeSeriesDatasetFactory= to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
+*** Preprocessing: Add Metadata features
+Preprocessors can be used to transform the data before it is fed into the model.
+A Preprocessor can be any python callable.
+In this case we will be using the a class called =CyclicalFeatureEncoder= to encode our one-dimensional cyclical features like the /time/ or /weekday/ to two-dimensional coordinates using a sine and cosine transformation as suggested in [this blogpost](https://www.kaggle.com/avanwyk/encoding-cyclical-features-for-deep-learning).
 #+NAME: ds3
 #+begin_src python :session :exports both
 import itertools
@@ -183,7 +185,6 @@ ds3
 #+end_src
 
 This returns the following TensorFlow Dataset:
-
 #+RESULTS: ds3
 : <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
 

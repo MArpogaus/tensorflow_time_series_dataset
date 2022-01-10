@@ -10,10 +10,10 @@
 
 1.  [About The Project](#about-the-project)
 2.  [Usage](#usage)
-    1.  [Example Data](#org62ac303)
-    2.  [Single-Step Prediction](#org5c0e42d)
-    3.  [Multi-Step Prediction](#org31a5c64)
-    4.  [Add Meta data as features](#org1c91d16)
+    1.  [Example Data](#org172632d)
+    2.  [Single-Step Prediction](#org660c3b2)
+    3.  [Multi-Step Prediction](#org487b8c3)
+    4.  [Preprocessing: Add Metadata features](#orgae97c2b)
 3.  [Contributing](#contributing)
 4.  [License](#license)
 5.  [Contact](#contact)
@@ -32,7 +32,7 @@ This python packages should help you to create TensorFlow datasets for time-seri
 # Usage
 
 
-<a id="org62ac303"></a>
+<a id="org172632d"></a>
 
 ## Example Data
 
@@ -62,18 +62,18 @@ Suppose you have a dataset in the following form:
     test_df.head()
 
                                x1        x2        x3
-    1992-01-01 00:00:00  0.258083  0.902987  1.617639
-    1992-01-01 00:30:00  0.203509  1.414581  1.771407
-    1992-01-01 01:00:00  0.013242  1.774091  2.686694
-    1992-01-01 01:30:00  0.351366  1.142042  1.304276
-    1992-01-01 02:00:00  0.158146 -0.222801  2.538896
+    1992-01-01 00:00:00 -0.282495  0.824307  1.986228
+    1992-01-01 00:30:00  0.056311  1.288896  1.875381
+    1992-01-01 01:00:00 -0.272162  0.662390  1.956936
+    1992-01-01 01:30:00 -0.075224  0.765020  1.940887
+    1992-01-01 02:00:00  0.343781  0.652433  1.864976
 
 
-<a id="org5c0e42d"></a>
+<a id="org660c3b2"></a>
 
 ## Single-Step Prediction
 
-this module contains the factory class `WindowedTimeSeriesDatasetFactory` to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
+The factory class `WindowedTimeSeriesDatasetFactory` is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 We will use it now to create a dataset with `48` historic time-steps as the input to predict a single time-step in the future.
 
     from tensorflow_time_series_dataset import WindowedTimeSeriesDatasetFactory as Factory
@@ -109,11 +109,11 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.png)
 
 
-<a id="org31a5c64"></a>
+<a id="org487b8c3"></a>
 
 ## Multi-Step Prediction
 
-Lets now change the prediction size to a whole day consisting of `6` half-hour time-steps.
+Lets now increase the change the prediction size to `6` half-hour time-steps.
 
     factory_kwds.update(dict(
         prediction_size=6
@@ -141,11 +141,13 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.png)
 
 
-<a id="org1c91d16"></a>
+<a id="orgae97c2b"></a>
 
-## Add Meta data as features
+## Preprocessing: Add Metadata features
 
-this module contains the factory class `WindowedTimeSeriesDatasetFactory` to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
+Preprocessors can be used to transform the data before it is fed into the model.
+A Preprocessor can be any python callable.
+In this case we will be using the a class called `CyclicalFeatureEncoder` to encode our one-dimensional cyclical features like the *time* or *weekday* to two-dimensional coordinates using a sine and cosine transformation as suggested in [this blogpost](<https://www.kaggle.com/avanwyk/encoding-cyclical-features-for-deep-learning>).
 
     import itertools
     from tensorflow_time_series_dataset.preprocessors import CyclicalFeatureEncoder
