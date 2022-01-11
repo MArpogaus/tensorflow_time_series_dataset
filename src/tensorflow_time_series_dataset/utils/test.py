@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 14:50:51 (Marcel Arpogaus)
+# changed : 2022-01-11 15:50:28 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -28,23 +28,29 @@ import numpy as np
 import pytest
 
 
-def get_id_and_idx(val):
-    id = val // 1e6
-    idx = val % 1e4
-    return id, idx
+def get_idx(ref, val):
+    idx = np.where(ref == val)[0]
+    assert len(idx) == 1, "Could not determine index from refference value"
+    return int(idx)
 
 
 def gen_patch(df, idx, size):
-    return df.values[np.int(idx) : np.int(idx + size)]
+    x = df.values[idx : idx + size]
+    assert len(x) == size, "Could not generate patch from reference data"
+    return x
 
 
-def gen_batch(df, columns, size, ids, lines):
+def gen_batch(df, columns, size, refs, ref_col):
     batch = []
-    for id, line in zip(ids, lines):
+    columns = list(sorted(columns))
+    for ref in refs:
         if "id" in df.columns:
-            p = gen_patch(df[df.id == id][columns], line, size)
+            id = ref // 1e5
+            idx = get_idx(df[df.id == id][ref_col], ref)
+            p = gen_patch(df[df.id == id][columns], idx, size)
         else:
-            p = gen_patch(df[columns], line, size)
+            idx = get_idx(df[ref_col], ref)
+            p = gen_patch(df[columns], idx, size)
         batch.append(p)
     return np.float32(batch)
 
@@ -61,16 +67,34 @@ def validate_dataset(
     history_reference_column="ref",
     meta_reference_column="ref",
     prediction_reference_column="ref",
+    **kwds,
 ):
+    df = df.sort_index()
     x1_shape = (batch_size, history_size, len(history_columns))
     x2_shape = (batch_size, 1, len(meta_columns))
     y_shape = (batch_size, prediction_size, len(prediction_columns))
+
     history_columns = list(sorted(history_columns))
     meta_columns = list(sorted(meta_columns))
     prediction_columns = list(sorted(prediction_columns))
+
     history_columns_idx = {c: i for i, c in enumerate(history_columns)}
     meta_columns_idx = {c: i for i, c in enumerate(meta_columns)}
     prediction_columns_idx = {c: i for i, c in enumerate(prediction_columns)}
+
+    assert (
+        len(set(history_columns + meta_columns + prediction_columns) - set(df.columns))
+        == 0
+    ), "Not all columns in test df"
+    assert (
+        history_reference_column in df.columns
+    ), f"history_reference_column ({history_reference_column}) not in df.columns"
+    assert (
+        meta_reference_column in df.columns
+    ), f"meta_reference_column ({meta_reference_column}) not in df.columns"
+    assert (
+        prediction_reference_column in df.columns
+    ), f"prediction_reference_column ({prediction_reference_column}) not in df.columns"
 
     for b, (x, y) in enumerate(ds.as_numpy_iterator()):
         x1, x2 = None, None
@@ -83,35 +107,56 @@ def validate_dataset(
 
         if x1 is not None:
             assert x1.shape == x1_shape, f"Wrong shape: history ({b})"
-            first_val = x1[:, 0, history_columns_idx[history_reference_column]]
-            ids, lines = get_id_and_idx(first_val)
+            ref = x1[:, 0, history_columns_idx[history_reference_column]]
             assert np.all(
-                x1 == gen_batch(df, history_columns, history_size, ids, lines)
+                x1
+                == gen_batch(
+                    df, history_columns, history_size, ref, history_reference_column
+                )
             ), f"Wrong data: history ({b})"
             if x2 is not None:
                 assert np.all(
-                    x2 == gen_batch(df, meta_columns, 1, ids, lines + history_size)
+                    x2
+                    == gen_batch(
+                        df,
+                        meta_columns,
+                        1,
+                        ref + history_size,
+                        history_reference_column,
+                    )
                 ), f"wrong data: meta not consecutive ({b})"
 
             last_val = x1[:, -1, history_columns_idx[history_reference_column]]
-            ids, lines = get_id_and_idx(last_val)
-            y_test = gen_batch(df, prediction_columns, prediction_size, ids, lines + 1)
+            y_test = gen_batch(
+                df,
+                prediction_columns,
+                prediction_size,
+                last_val + 1,
+                history_reference_column,
+            )
             assert np.all(y == y_test), f"Wrong data: prediction not consecutive ({b})"
 
         if x2 is not None:
             first_val = x2[:, 0, meta_columns_idx[meta_reference_column]]
-            ids, lines = get_id_and_idx(first_val)
             assert x2.shape == x2_shape, f"Wrong shape: meta ({b})"
             assert np.all(
-                x2 == gen_batch(df, meta_columns, 1, ids, lines)
+                x2 == gen_batch(df, meta_columns, 1, first_val, meta_reference_column)
             ), f"Wrong data: meta ({b})"
 
         assert y.shape == y_shape, f"Wrong shape: prediction ({b})"
         first_val = y[:, 0, prediction_columns_idx[prediction_reference_column]]
-        ids, lines = get_id_and_idx(first_val)
         assert np.all(
-            y == gen_batch(df, prediction_columns, prediction_size, ids, lines)
+            y
+            == gen_batch(
+                df,
+                prediction_columns,
+                prediction_size,
+                first_val,
+                prediction_reference_column,
+            )
         ), f"Wrong data: prediction ({b})"
+
+    return b + 1
 
 
 def get_ctxmgr(

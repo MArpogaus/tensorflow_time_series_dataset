@@ -58,7 +58,7 @@ def test_patch_generator(time_series_df, window_size, shift):
     for i, patch in enumerate(ds_patched.as_numpy_iterator()):
         assert patch.shape == expected_shape, "Wrong shape"
         x1 = patch[0, 0]
-        idx = int(x1 % 1e4)
+        idx = int(x1 % 1e5)
         expected_values = df.iloc[idx : idx + window_size]
         assert np.all(patch == expected_values), "Patch contains wrong data"
     assert i + 1 == patches, "Not enough patches"
@@ -85,8 +85,8 @@ def test_patch_generator_groupby(groupby_dataset, window_size, shift):
         assert patch.shape == expected_shape, "Wrong shape"
         if len(columns):
             x1 = patch[0, 0]
-            id = int(x1 // 1e6)
-            idx = int(x1 % 1e4)
+            id = int(x1 // 1e5)
+            idx = int(x1 % 1e5)
             expected_values = df[df.id == id].iloc[idx : idx + window_size]
             assert np.all(
                 patch == expected_values[columns].values
@@ -128,13 +128,18 @@ def test_batch_processor(
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
 
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds_batched,
             batch_size=batch_size,
             prediction_size=prediction_size,
             **batch_kwds,
         )
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_pipeline(
@@ -180,11 +185,18 @@ def test_windowed_time_series_pipeline(
         ds = tf.data.Dataset.from_tensors(df[used_cols])
         ds = pipeline(ds)
         ds
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds,
             **batch_kwds,
         )
+
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_pipeline_groupby(
@@ -226,8 +238,15 @@ def test_windowed_time_series_pipeline_groupby(
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = pipeline(ds)
         ds
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds,
             **batch_kwds,
         )
+
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift * len(ids)
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"

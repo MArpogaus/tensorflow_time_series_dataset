@@ -6,19 +6,15 @@ import numpy as np
 columns = ["ref", "x1", "x2"]
 
 
-def get_value_generator(date_range, columns):
-    def gen_value(column, line, id=0):
-        if column == "weekday":
-            return date_range[line].weekday()
-        else:
-            col_num = columns.index(column)
-            return int(f"{col_num:02d}{line:04d}") + (id * 1e6)
-
-    return gen_value
+def gen_value(column, line, id=0):
+    if column == "ref":
+        return id * 1e5 + line
+    else:
+        return np.random.randint(0, 1000)
 
 
-def gen_df(columns, date_range, id=0):
-    gen_value = get_value_generator(date_range, columns)
+def gen_df(columns, date_range, id=0, seed=1):
+    np.random.seed(seed)
     periods = date_range.size
     df = pd.DataFrame(
         {
@@ -42,7 +38,7 @@ def gen_df_with_id(ids, columns, date_range):
 
 @pytest.fixture(
     scope="function",
-    params=[(columns + ["weekday"], 48 * 30 * 3)],
+    params=[(columns, 48 * 30 * 3)],
 )
 def time_series_df(request):
     df = gen_df(
@@ -55,7 +51,7 @@ def time_series_df(request):
 @pytest.fixture(
     scope="function",
     params=[
-        (list(range(5)), columns + ["weekday"], 48 * 30 * 3),
+        (list(range(5)), columns, 48 * 30 * 3),
     ],
 )
 def time_series_df_with_id(request):
@@ -111,7 +107,7 @@ def history_columns(request):
     return request.param
 
 
-@pytest.fixture(params=[[], ["ref", "weekday"]])
+@pytest.fixture(params=[[], ["ref", "x1"]])
 def meta_columns(request):
     return request.param
 

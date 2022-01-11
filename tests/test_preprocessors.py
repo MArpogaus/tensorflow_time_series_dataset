@@ -83,21 +83,19 @@ def test_time_series_split(time_series_df_with_id):
 
 
 def test_groupby_dataset_generator(time_series_df_with_id):
-    time_series_df_with_id.set_index("date_time", inplace=True)
+    df = time_series_df_with_id.set_index("date_time")
+    columns = list(sorted(df.columns))
+    df = df[columns]
 
-    columns = list(sorted(time_series_df_with_id.columns))
-    records_per_id = time_series_df_with_id.groupby("id").x1.size().max()
+    records_per_id = df.groupby("id").size().max()
     expected_shape = (records_per_id, len(columns))
 
     idx_from_column = {c: i for i, c in enumerate(columns)}
-
     gen = GroupbyDatasetGenerator("id", columns=columns)
-    for d in gen(time_series_df_with_id):
+    for d in gen(df.sample(frac=1)):
         assert d.shape == expected_shape, "Wrong shape"
-        id = int(d[0, idx_from_column["x1"]] // 1e6)
-        expected_values = time_series_df_with_id[time_series_df_with_id.id == id][
-            columns
-        ].values
+        id = int(d[0, idx_from_column["ref"]] // 1e5)
+        expected_values = df[df.id == id].sort_index().values
         assert np.all(
             d.numpy() == expected_values,
         ), "Error: DatasetGenerator failed"
