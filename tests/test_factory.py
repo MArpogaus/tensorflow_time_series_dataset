@@ -46,11 +46,17 @@ def test_windowed_time_series_dataset_factory(
         factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
         ds = factory(df)
         ds
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds,
             **common_kwds,
         )
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_dataset_factory_groupby(
@@ -99,11 +105,17 @@ def test_windowed_time_series_dataset_factory_groupby(
 
         ds = factory(df)
         ds
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds,
             **common_kwds,
         )
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift * len(ids)
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_dataset_factory_csv_loader(
@@ -145,11 +157,17 @@ def test_windowed_time_series_dataset_factory_csv_loader(
         factory.set_data_loader(CSVDataLoader(file_path=test_data_path))
         ds = factory()
         ds
-        validate_dataset(
+        batches = validate_dataset(
             df,
             ds,
             **common_kwds,
         )
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = df.index.unique().size - initial_size
+        patches = patch_data / shift
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
@@ -216,8 +234,15 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
         )
         ds = factory()
         ds
-        validate_dataset(
+        batches = validate_dataset(
             test_df,
             ds,
             **common_kwds,
         )
+
+        window_size = history_size + prediction_size
+        initial_size = window_size - shift
+        patch_data = test_df.index.unique().size - initial_size
+        patches = patch_data / shift * len(ids)
+        expected_batches = int(patches // batch_size)
+        assert batches == expected_batches, "Not enough batches"
