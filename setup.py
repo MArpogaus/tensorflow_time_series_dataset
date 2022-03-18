@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 package = "tensorflow_time_series_dataset"
 version = "0.1"
@@ -13,7 +13,7 @@ setup(
     author_email="marcel.arpogaus@gmail.com",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    install_requires=["tensorflow==2.6.*", "pandas==1.3.*"],
+    install_requires=["tensorflow==2.8.*", "pandas==1.3.*"],
     description="A TensorFlow dataset from time-series data.",
     long_description=long_description,
     long_description_content_type="text/markdown",
