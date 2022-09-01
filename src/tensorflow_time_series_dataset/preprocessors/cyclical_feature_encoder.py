@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-03-17 17:23:19 (Marcel Arpogaus)
+# changed : 2022-09-01 11:13:50 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -23,7 +23,6 @@
 # limitations under the License.
 ###############################################################################
 import numpy as np
-import tensorflow as tf
 
 
 def default_cycl_getter(df, k):
@@ -64,7 +63,7 @@ class CyclicalFeatureEncoder:
         return data
 
     def decode(self, sin, cos):
-        angle = (tf.math.atan2(sin, cos) + 2 * np.pi) % (2 * np.pi)
+        angle = (np.arctan2(sin, cos) + 2 * np.pi) % (2 * np.pi)
         return (angle * (self.cycl_max - self.cycl_min + 1)) / (
             2 * np.pi
         ) + self.cycl_min
