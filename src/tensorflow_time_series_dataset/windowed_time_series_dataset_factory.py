@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 16:12:30 (Marcel Arpogaus)
+# changed : 2022-09-02 12:17:23 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -23,6 +23,7 @@
 # limitations under the License.
 ###############################################################################
 import tensorflow as tf
+
 from .pipeline import WindowedTimeSeriesPipeline
 
 
@@ -32,7 +33,6 @@ class WindowedTimeSeriesDatasetFactory:
         batch_size=32,
         cycle_length=1,
         shuffle_buffer_size=1000,
-        seed=42,
     )
 
     def __init__(

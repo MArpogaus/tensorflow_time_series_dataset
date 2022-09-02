@@ -33,7 +33,6 @@ def test_windowed_time_series_dataset_factory(
         shift=shift,
         cycle_length=1,
         shuffle_buffer_size=100,
-        seed=1,
     )
 
     with get_ctxmgr(
@@ -85,7 +84,6 @@ def test_windowed_time_series_dataset_factory_groupby(
         shift=shift,
         cycle_length=len(ids),
         shuffle_buffer_size=100,
-        seed=1,
     )
 
     with get_ctxmgr(
@@ -144,7 +142,6 @@ def test_windowed_time_series_dataset_factory_csv_loader(
         shift=shift,
         cycle_length=1,
         shuffle_buffer_size=100,
-        seed=1,
     )
     with get_ctxmgr(
         history_size=history_size,
@@ -213,7 +210,6 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
         shift=shift,
         cycle_length=len(ids),
         shuffle_buffer_size=100,
-        seed=1,
     )
     with get_ctxmgr(
         history_size=history_size,

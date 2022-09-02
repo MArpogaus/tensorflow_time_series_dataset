@@ -11,8 +11,8 @@
 # LICENSE #####################################################################
 # ...
 ###############################################################################
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 prop_cycle = plt.rcParams["axes.prop_cycle"]
 colors = prop_cycle.by_key()["color"]

@@ -171,7 +171,6 @@ def test_windowed_time_series_pipeline(
         shift=shift,
         cycle_length=1,
         shuffle_buffer_size=100,
-        seed=1,
     )
 
     with get_ctxmgr(
@@ -225,7 +224,6 @@ def test_windowed_time_series_pipeline_groupby(
         shift=shift,
         cycle_length=len(ids),
         shuffle_buffer_size=1000,
-        seed=1,
     )
 
     with get_ctxmgr(

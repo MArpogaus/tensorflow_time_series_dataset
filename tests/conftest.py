@@ -2,8 +2,13 @@ import itertools
 import pytest
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 
 columns = ["ref", "x1", "x2"]
+
+seed = 1
+tf.random.set_seed(seed)
+np.random.seed(seed)
 
 
 def gen_value(column, line, id=0):
@@ -13,8 +18,7 @@ def gen_value(column, line, id=0):
         return np.random.randint(0, 1000)
 
 
-def gen_df(columns, date_range, id=0, seed=1):
-    np.random.seed(seed)
+def gen_df(columns, date_range, id=0):
     periods = date_range.size
     df = pd.DataFrame(
         {
