@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-12 09:09:21 (Marcel Arpogaus)
+# changed : 2022-09-02 16:59:17 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -106,7 +106,9 @@ def validate_dataset(
             x2 = x
 
         if x1 is not None:
-            assert x1.shape == x1_shape, f"Wrong shape: history ({b})"
+            assert (
+                x1.shape == x1_shape
+            ), f"Wrong shape: history ({b}: {x1.shape} != {x1_shape})"
             ref = x1[:, 0, history_columns_idx[history_reference_column]]
             assert np.all(
                 x1

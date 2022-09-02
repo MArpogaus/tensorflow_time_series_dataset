@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-02 16:00:49 (Marcel Arpogaus)
+# changed : 2022-09-02 17:04:13 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -72,7 +72,7 @@ class PatchPreprocessor:
         for c in x_columns:
             column = patch[:, self.column_idx[c], None]
             if self.history_size and c in self.history_columns:
-                x_hist.append(column[self.history_size, 0])
+                x_hist.append(column[: self.history_size, 0])
             if c in self.meta_columns:
                 x_meta.append(column[self.history_size, None, ...])
 

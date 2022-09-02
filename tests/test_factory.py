@@ -44,7 +44,6 @@ def test_windowed_time_series_dataset_factory(
     ):
         factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
         ds = factory(df)
-        ds
         batches = validate_dataset(
             df,
             ds,
@@ -102,7 +101,6 @@ def test_windowed_time_series_dataset_factory_groupby(
         )
 
         ds = factory(df)
-        ds
         batches = validate_dataset(
             df,
             ds,
@@ -153,7 +151,6 @@ def test_windowed_time_series_dataset_factory_csv_loader(
         factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
         factory.set_data_loader(CSVDataLoader(file_path=test_data_path))
         ds = factory()
-        ds
         batches = validate_dataset(
             df,
             ds,
@@ -229,7 +226,6 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
             )
         )
         ds = factory()
-        ds
         batches = validate_dataset(
             test_df,
             ds,

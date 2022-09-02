@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-02 12:17:23 (Marcel Arpogaus)
+# changed : 2022-09-02 16:36:19 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -29,10 +29,7 @@ from .pipeline import WindowedTimeSeriesPipeline
 
 class WindowedTimeSeriesDatasetFactory:
     default_pipline_kwds = dict(
-        shift=None,
-        batch_size=32,
-        cycle_length=1,
-        shuffle_buffer_size=1000,
+        shift=None, batch_size=32, cycle_length=1, shuffle_buffer_size=1000, cache=True
     )
 
     def __init__(

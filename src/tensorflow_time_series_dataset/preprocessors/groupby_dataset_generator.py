@@ -26,7 +26,9 @@ import tensorflow as tf
 
 
 class GroupbyDatasetGenerator:
-    def __init__(self, groupby, columns, dtype=tf.float32, shuffle=False, test_mode=False):
+    def __init__(
+        self, groupby, columns, dtype=tf.float32, shuffle=False, test_mode=False
+    ):
         self.groupby = groupby
         self.columns = sorted(list(set(columns)))
         self.dtype = dtype

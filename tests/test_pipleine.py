@@ -167,10 +167,7 @@ def test_windowed_time_series_pipeline(
         batch_size=batch_size,
     )
     pipeline_kwds = dict(
-        shift=shift,
-        cycle_length=1,
-        shuffle_buffer_size=100,
-        cache=True
+        shift=shift, cycle_length=1, shuffle_buffer_size=100, cache=True
     )
 
     with get_ctxmgr(
