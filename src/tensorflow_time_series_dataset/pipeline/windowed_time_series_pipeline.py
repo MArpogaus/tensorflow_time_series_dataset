@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-02 15:49:20 (Marcel Arpogaus)
+# changed : 2022-09-02 16:01:56 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -25,7 +25,7 @@
 # REQUIRED PYTHON MODULES #####################################################
 import tensorflow as tf
 
-from tensorflow_time_series_dataset.pipeline.batch_processor import BatchPreprocessor
+from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 from tensorflow_time_series_dataset.pipeline.patch_generator import PatchGenerator
 
 
@@ -41,6 +41,7 @@ class WindowedTimeSeriesPipeline:
         batch_size,
         cycle_length,
         shuffle_buffer_size,
+        cache,
     ):
         assert (
             prediction_size > 0
@@ -55,13 +56,9 @@ class WindowedTimeSeriesPipeline:
         self.batch_size = batch_size
         self.cycle_length = cycle_length
         self.shuffle_buffer_size = shuffle_buffer_size
+        self.cache = cache
 
     def __call__(self, ds):
-
-        if self.shuffle_buffer_size > 0:
-            ds = ds.shuffle(
-                self.cycle_length * self.shuffle_buffer_size, seed=self.seed
-            )
 
         ds = ds.interleave(
             PatchGenerator(self.window_size, self.shift),
@@ -69,13 +66,8 @@ class WindowedTimeSeriesPipeline:
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
 
-        if self.shuffle_buffer_size > 0:
-            ds = ds.shuffle(self.shuffle_buffer_size)
-
-        ds = ds.batch(self.batch_size, drop_remainder=True)
-
         ds = ds.map(
-            BatchPreprocessor(
+            PatchPreprocessor(
                 self.history_size,
                 self.history_columns,
                 self.meta_columns,
@@ -83,6 +75,14 @@ class WindowedTimeSeriesPipeline:
             ),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
+
+        if self.cache:
+            ds = ds.cache()
+
+        if self.shuffle_buffer_size:
+            ds = ds.shuffle(self.shuffle_buffer_size)
+
+        ds = ds.batch(self.batch_size, drop_remainder=True)
 
         ds = ds.prefetch(tf.data.experimental.AUTOTUNE)
 

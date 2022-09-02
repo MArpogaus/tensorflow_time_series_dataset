@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import tensorflow as tf
-from tensorflow_time_series_dataset.pipeline.batch_processor import BatchPreprocessor
+from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 from tensorflow_time_series_dataset.pipeline.patch_generator import PatchGenerator
 from tensorflow_time_series_dataset.pipeline.windowed_time_series_pipeline import (
     WindowedTimeSeriesPipeline,
@@ -122,11 +122,10 @@ def test_batch_processor(
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        ds_batched = ds.batch(batch_size, drop_remainder=True)
-        ds_batched = ds_batched.map(
-            BatchPreprocessor(**batch_kwds),
+        ds_batched = ds.map(
+            PatchPreprocessor(**batch_kwds),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
-        )
+        ).batch(batch_size)
 
         batches = validate_dataset(
             df,
@@ -171,6 +170,7 @@ def test_windowed_time_series_pipeline(
         shift=shift,
         cycle_length=1,
         shuffle_buffer_size=100,
+        cache=True
     )
 
     with get_ctxmgr(
@@ -183,7 +183,6 @@ def test_windowed_time_series_pipeline(
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = tf.data.Dataset.from_tensors(df[used_cols])
         ds = pipeline(ds)
-        ds
         batches = validate_dataset(
             df,
             ds,
@@ -235,7 +234,6 @@ def test_windowed_time_series_pipeline_groupby(
     ):
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = pipeline(ds)
-        ds
         batches = validate_dataset(
             df,
             ds,

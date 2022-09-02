@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2022-09-02 16:03:22 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -26,10 +26,11 @@ import tensorflow as tf
 
 
 class GroupbyDatasetGenerator:
-    def __init__(self, groupby, columns, dtype=tf.float32, test_mode=False):
+    def __init__(self, groupby, columns, dtype=tf.float32, shuffle=False, test_mode=False):
         self.groupby = groupby
         self.columns = sorted(list(set(columns)))
         self.dtype = dtype
+        self.shuffle = shuffle
         self.test_mode = test_mode
 
     def get_generator(self, df):
@@ -54,4 +55,7 @@ class GroupbyDatasetGenerator:
                 tf.TensorSpec(shape=[None, len(self.columns)], dtype=self.dtype)
             ),
         )
+        if self.shuffle:
+            len_ids = df[self.groupby].unique().size
+            ds = ds.shuffle(len_ids)
         return ds

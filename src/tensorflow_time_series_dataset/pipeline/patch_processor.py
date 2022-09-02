@@ -1,10 +1,10 @@
 # -*- time-stamp-pattern: "changed[\s]+:[\s]+%%$"; -*-
 # AUTHOR INFORMATION ##########################################################
-# file    : batch_processor.py
+# file    : patch_processor.py
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 14:50:17 (Marcel Arpogaus)
+# changed : 2022-09-02 16:00:49 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -25,7 +25,7 @@
 import tensorflow as tf
 
 
-class BatchPreprocessor:
+class PatchPreprocessor:
     def __init__(
         self,
         history_size,
@@ -66,22 +66,22 @@ class BatchPreprocessor:
         ), "Patch shape dos not match column number"
 
         for c in y_columns:
-            column = patch[:, self.history_size :, self.column_idx[c]]
+            column = patch[self.history_size :, self.column_idx[c]]
             y.append(column)
 
         for c in x_columns:
-            column = patch[:, :, self.column_idx[c], None]
+            column = patch[:, self.column_idx[c], None]
             if self.history_size and c in self.history_columns:
-                x_hist.append(column[:, : self.history_size, 0])
+                x_hist.append(column[self.history_size, 0])
             if c in self.meta_columns:
-                x_meta.append(column[:, self.history_size, None, ...])
+                x_meta.append(column[self.history_size, None, ...])
 
-        y = tf.stack(y, axis=2)
+        y = tf.stack(y, axis=-1)
         x = []
         if len(x_hist):
-            x.append(tf.stack(x_hist, axis=2))
+            x.append(tf.stack(x_hist, axis=-1))
         if len(x_meta):
-            x.append(tf.concat(x_meta, axis=2))
+            x.append(tf.concat(x_meta, axis=-1))
 
         if len(x) > 1:
             return tuple(x), y
