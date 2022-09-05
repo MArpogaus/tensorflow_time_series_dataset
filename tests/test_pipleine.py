@@ -127,18 +127,14 @@ def test_batch_processor(
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         ).batch(batch_size)
 
-        batches = validate_dataset(
+        validate_dataset(
             df,
             ds_batched,
             batch_size=batch_size,
             prediction_size=prediction_size,
+            shift=shift,
             **batch_kwds,
         )
-        initial_size = window_size - shift
-        patch_data = df.index.unique().size - initial_size
-        patches = patch_data / shift
-        expected_batches = int(patches // batch_size)
-        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_pipeline(
@@ -161,14 +157,13 @@ def test_windowed_time_series_pipeline(
     batch_kwds = dict(
         history_size=history_size,
         prediction_size=prediction_size,
+        shift=shift,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
     )
-    pipeline_kwds = dict(
-        shift=shift, cycle_length=1, shuffle_buffer_size=100, cache=True
-    )
+    pipeline_kwds = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
 
     with get_ctxmgr(
         history_size=history_size,
@@ -180,18 +175,11 @@ def test_windowed_time_series_pipeline(
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = tf.data.Dataset.from_tensors(df[used_cols])
         ds = pipeline(ds)
-        batches = validate_dataset(
+        validate_dataset(
             df,
             ds,
             **batch_kwds,
         )
-
-        window_size = history_size + prediction_size
-        initial_size = window_size - shift
-        patch_data = df.index.unique().size - initial_size
-        patches = patch_data / shift
-        expected_batches = int(patches // batch_size)
-        assert batches == expected_batches, "Not enough batches"
 
 
 def test_windowed_time_series_pipeline_groupby(
@@ -211,17 +199,13 @@ def test_windowed_time_series_pipeline_groupby(
     batch_kwds = dict(
         history_size=history_size,
         prediction_size=prediction_size,
+        shift=shift,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
     )
-    pipeline_kwds = dict(
-        shift=shift,
-        cycle_length=len(ids),
-        shuffle_buffer_size=1000,
-        cache=True
-    )
+    pipeline_kwds = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
 
     with get_ctxmgr(
         history_size=history_size,
@@ -232,15 +216,8 @@ def test_windowed_time_series_pipeline_groupby(
     ):
         pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
         ds = pipeline(ds)
-        batches = validate_dataset(
+        validate_dataset(
             df,
             ds,
             **batch_kwds,
         )
-
-        window_size = history_size + prediction_size
-        initial_size = window_size - shift
-        patch_data = df.index.unique().size - initial_size
-        patches = patch_data / shift * len(ids)
-        expected_batches = int(patches // batch_size)
-        assert batches == expected_batches, "Not enough batches"

@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-02 16:59:17 (Marcel Arpogaus)
+# changed : 2022-09-05 17:17:10 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -61,6 +61,7 @@ def validate_dataset(
     batch_size,
     history_size,
     prediction_size,
+    shift,
     history_columns,
     meta_columns,
     prediction_columns,
@@ -70,9 +71,18 @@ def validate_dataset(
     **kwds,
 ):
     df = df.sort_index()
-    x1_shape = (batch_size, history_size, len(history_columns))
-    x2_shape = (batch_size, 1, len(meta_columns))
-    y_shape = (batch_size, prediction_size, len(prediction_columns))
+
+    if "id" in df.columns:
+        ids = len(df.id.unique())
+    else:
+        ids = 1
+
+    window_size = history_size + prediction_size
+    initial_size = window_size - shift
+    patch_data = df.index.unique().size - initial_size
+    patches = patch_data / shift * ids
+    has_remainder = patches % batch_size != 0
+    expected_batches = int(patches // batch_size) + int(has_remainder)
 
     history_columns = list(sorted(history_columns))
     meta_columns = list(sorted(meta_columns))
@@ -96,7 +106,15 @@ def validate_dataset(
         prediction_reference_column in df.columns
     ), f"prediction_reference_column ({prediction_reference_column}) not in df.columns"
 
-    for b, (x, y) in enumerate(ds.as_numpy_iterator()):
+    for batch_no, (x, y) in enumerate(ds.as_numpy_iterator(), start=1):
+        if batch_no == expected_batches and has_remainder:
+            bs = int(patches % batch_size)
+        else:
+            bs = batch_size
+        x1_shape = (bs, history_size, len(history_columns))
+        x2_shape = (bs, 1, len(meta_columns))
+        y_shape = (bs, prediction_size, len(prediction_columns))
+
         x1, x2 = None, None
         if history_size and len(history_columns) and len(meta_columns):
             x1, x2 = x
@@ -108,14 +126,14 @@ def validate_dataset(
         if x1 is not None:
             assert (
                 x1.shape == x1_shape
-            ), f"Wrong shape: history ({b}: {x1.shape} != {x1_shape})"
+            ), f"Wrong shape: history ({batch_no}: {x1.shape} != {x1_shape})"
             ref = x1[:, 0, history_columns_idx[history_reference_column]]
             assert np.all(
                 x1
                 == gen_batch(
                     df, history_columns, history_size, ref, history_reference_column
                 )
-            ), f"Wrong data: history ({b})"
+            ), f"Wrong data: history ({batch_no})"
             if x2 is not None:
                 assert np.all(
                     x2
@@ -126,7 +144,7 @@ def validate_dataset(
                         ref + history_size,
                         history_reference_column,
                     )
-                ), f"wrong data: meta not consecutive ({b})"
+                ), f"wrong data: meta not consecutive ({batch_no})"
 
             last_val = x1[:, -1, history_columns_idx[history_reference_column]]
             y_test = gen_batch(
@@ -136,16 +154,18 @@ def validate_dataset(
                 last_val + 1,
                 history_reference_column,
             )
-            assert np.all(y == y_test), f"Wrong data: prediction not consecutive ({b})"
+            assert np.all(
+                y == y_test
+            ), f"Wrong data: prediction not consecutive ({batch_no})"
 
         if x2 is not None:
             first_val = x2[:, 0, meta_columns_idx[meta_reference_column]]
-            assert x2.shape == x2_shape, f"Wrong shape: meta ({b})"
+            assert x2.shape == x2_shape, f"Wrong shape: meta ({batch_no})"
             assert np.all(
                 x2 == gen_batch(df, meta_columns, 1, first_val, meta_reference_column)
-            ), f"Wrong data: meta ({b})"
+            ), f"Wrong data: meta ({batch_no})"
 
-        assert y.shape == y_shape, f"Wrong shape: prediction ({b})"
+        assert y.shape == y_shape, f"Wrong shape: prediction ({batch_no})"
         first_val = y[:, 0, prediction_columns_idx[prediction_reference_column]]
         assert np.all(
             y
@@ -156,11 +176,15 @@ def validate_dataset(
                 first_val,
                 prediction_reference_column,
             )
-        ), f"Wrong data: prediction ({b})"
+        ), f"Wrong data: prediction ({batch_no})"
 
-    assert b != None, "No iteration. Is there enough data?"
+    assert batch_no != None, "No iteration. Is there enough data?"
 
-    return b + 1
+    assert (
+        batch_no == expected_batches
+    ), f"Not enough batches. {batch_no} != {expected_batches}"
+
+    return batch_no
 
 
 def get_ctxmgr(

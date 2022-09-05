@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-02 16:43:49 (Marcel Arpogaus)
+# changed : 2022-09-05 17:13:33 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -82,7 +82,7 @@ class WindowedTimeSeriesPipeline:
         if self.shuffle_buffer_size:
             ds = ds.shuffle(self.shuffle_buffer_size)
 
-        ds = ds.batch(self.batch_size, drop_remainder=True)
+        ds = ds.batch(self.batch_size)
 
         ds = ds.prefetch(tf.data.experimental.AUTOTUNE)
 
