@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-05 17:17:10 (Marcel Arpogaus)
+# changed : 2022-11-09 17:07:26 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -65,6 +65,7 @@ def validate_dataset(
     history_columns,
     meta_columns,
     prediction_columns,
+        drop_remainder,
     history_reference_column="ref",
     meta_reference_column="ref",
     prediction_reference_column="ref",
@@ -81,7 +82,7 @@ def validate_dataset(
     initial_size = window_size - shift
     patch_data = df.index.unique().size - initial_size
     patches = patch_data / shift * ids
-    has_remainder = patches % batch_size != 0
+    has_remainder = (patches % batch_size != 0) and not drop_remainder
     expected_batches = int(patches // batch_size) + int(has_remainder)
 
     history_columns = list(sorted(history_columns))

@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-05 17:13:33 (Marcel Arpogaus)
+# changed : 2022-11-09 16:08:45 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -42,6 +42,7 @@ class WindowedTimeSeriesPipeline:
         cycle_length,
         shuffle_buffer_size,
         cache,
+        drop_remainder
     ):
         assert (
             prediction_size > 0
@@ -57,6 +58,7 @@ class WindowedTimeSeriesPipeline:
         self.cycle_length = cycle_length
         self.shuffle_buffer_size = shuffle_buffer_size
         self.cache = cache
+        self.drop_remainder = drop_remainder
 
     def __call__(self, ds):
 
@@ -82,7 +84,7 @@ class WindowedTimeSeriesPipeline:
         if self.shuffle_buffer_size:
             ds = ds.shuffle(self.shuffle_buffer_size)
 
-        ds = ds.batch(self.batch_size)
+        ds = ds.batch(self.batch_size, drop_remainder=self.drop_remainder)
 
         ds = ds.prefetch(tf.data.experimental.AUTOTUNE)
 
