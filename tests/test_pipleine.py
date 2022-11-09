@@ -1,18 +1,20 @@
 import numpy as np
 import pytest
 import tensorflow as tf
-from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
+
 from tensorflow_time_series_dataset.pipeline.patch_generator import PatchGenerator
+from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 from tensorflow_time_series_dataset.pipeline.windowed_time_series_pipeline import (
     WindowedTimeSeriesPipeline,
 )
 from tensorflow_time_series_dataset.preprocessors.groupby_dataset_generator import (
     GroupbyDatasetGenerator,
 )
-from tensorflow_time_series_dataset.utils.test import validate_dataset
-from tensorflow_time_series_dataset.utils.test import get_ctxmgr
+from tensorflow_time_series_dataset.utils.test import get_ctxmgr, validate_dataset
 
 # FIXTURES ####################################################################
+
+
 @pytest.fixture
 def groupby_dataset(
     time_series_df_with_id, history_columns, meta_columns, prediction_columns

@@ -1,7 +1,8 @@
 import itertools
-import pytest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import pytest
 import tensorflow as tf
 
 columns = ["ref", "x1", "x2"]

@@ -65,7 +65,7 @@ def validate_dataset(
     history_columns,
     meta_columns,
     prediction_columns,
-        drop_remainder,
+    drop_remainder,
     history_reference_column="ref",
     meta_reference_column="ref",
     prediction_reference_column="ref",
@@ -179,7 +179,7 @@ def validate_dataset(
             )
         ), f"Wrong data: prediction ({batch_no})"
 
-    assert batch_no != None, "No iteration. Is there enough data?"
+    assert batch_no is not None, "No iteration. Is there enough data?"
 
     assert (
         batch_no == expected_batches

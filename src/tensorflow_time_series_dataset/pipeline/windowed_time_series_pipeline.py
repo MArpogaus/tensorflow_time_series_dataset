@@ -25,8 +25,8 @@
 # REQUIRED PYTHON MODULES #####################################################
 import tensorflow as tf
 
-from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 from tensorflow_time_series_dataset.pipeline.patch_generator import PatchGenerator
+from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 
 
 class WindowedTimeSeriesPipeline:
@@ -42,7 +42,7 @@ class WindowedTimeSeriesPipeline:
         cycle_length,
         shuffle_buffer_size,
         cache,
-        drop_remainder
+        drop_remainder,
     ):
         assert (
             prediction_size > 0
