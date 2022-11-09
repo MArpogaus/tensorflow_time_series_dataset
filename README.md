@@ -10,10 +10,10 @@
 
 1.  [About The Project](#about-the-project)
 2.  [Usage](#usage)
-    1.  [Example Data](#org705c8ce)
-    2.  [Single-Step Prediction](#orge605148)
-    3.  [Multi-Step Prediction](#org46070f1)
-    4.  [Preprocessing: Add Metadata features](#org6f4b42f)
+    1.  [Example Data](#org801d13b)
+    2.  [Single-Step Prediction](#org0c7c414)
+    3.  [Multi-Step Prediction](#org23f37ef)
+    4.  [Preprocessing: Add Metadata features](#org92ad4f6)
 3.  [License](#license)
 4.  [Contact](#contact)
 5.  [Acknowledgments](#acknowledgments)
@@ -31,7 +31,7 @@ This python package should help you to create TensorFlow datasets for time-serie
 ## Usage
 
 
-<a id="org705c8ce"></a>
+<a id="org801d13b"></a>
 
 ### Example Data
 
@@ -71,21 +71,22 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="orge605148"></a>
+<a id="org0c7c414"></a>
 
 ### Single-Step Prediction
 
 The factory class `WindowedTimeSeriesDatasetFactory` is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 We will use it now to create a dataset with `48` historic time-steps as the input to predict a single time-step in the future.
 
-    from tensorflow_time_series_dataset import WindowedTimeSeriesDatasetFactory as Factory
+    from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
     
     factory_kwds=dict(
         history_size=48,
         prediction_size=1,
         history_columns=['x1', 'x2', 'x3'],
         prediction_columns=['x3'],
-        batch_size=4
+        batch_size=4,
+        drop_remainder=True,
     )
     factory=Factory(**factory_kwds)
     ds1=factory(test_df)
@@ -93,7 +94,7 @@ We will use it now to create a dataset with `48` historic time-steps as the inpu
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset shapes: ((4, 48, 3), (4, 1, 1)), types: (tf.float32, tf.float32)>
+    <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
 
 We can plot the result with the utility function `plot_path`:
 
@@ -111,7 +112,7 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.png)
 
 
-<a id="org46070f1"></a>
+<a id="org23f37ef"></a>
 
 ### Multi-Step Prediction
 
@@ -126,7 +127,7 @@ Lets now increase the prediction size to `6` half-hour time-steps.
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset shapes: ((4, 48, 3), (4, 6, 1)), types: (tf.float32, tf.float32)>
+    <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 
@@ -143,7 +144,7 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.png)
 
 
-<a id="org6f4b42f"></a>
+<a id="org92ad4f6"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -173,7 +174,7 @@ In this case we will be using the a class called `CyclicalFeatureEncoder` to enc
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
+    <PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 

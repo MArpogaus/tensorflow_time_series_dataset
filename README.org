@@ -31,16 +31,16 @@ example steps.
     :CUSTOM_ID: prerequisites
     :END:
 
-- A
-- B
+  - tensorflow>=2.5.*
+  - pandas>=1.3.*
+  - matplotlib>=3.6.2
 
 *** Installation
     :PROPERTIES:
     :CUSTOM_ID: installation
     :END:
 
-1. Step
-2. Step
+    pip install git+https://github.com/MArpogaus/tensorflow_timeseries_dataset.git
 
 ** Usage
    :PROPERTIES:
@@ -86,20 +86,22 @@ test_df.head()
 : 1992-01-01 01:30:00 -0.536484  1.159828  1.644974
 : 1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
+
 *** Single-Step Prediction
 The factory class =WindowedTimeSeriesDatasetFactory= is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
 We will use it now to create a dataset with =48= historic time-steps as the input to predict a single time-step in the future.
 
 #+NAME: ds1
 #+begin_src python :session :exports both
-from tensorflow_time_series_dataset import WindowedTimeSeriesDatasetFactory as Factory
+from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
 
 factory_kwds=dict(
     history_size=48,
     prediction_size=1,
     history_columns=['x1', 'x2', 'x3'],
     prediction_columns=['x3'],
-    batch_size=4
+    batch_size=4,
+    drop_remainder=True,
 )
 factory=Factory(**factory_kwds)
 ds1=factory(test_df)
@@ -109,7 +111,7 @@ ds1
 This returns the following TensorFlow Dataset:
 
 #+RESULTS: ds1
-: <PrefetchDataset shapes: ((4, 48, 3), (4, 1, 1)), types: (tf.float32, tf.float32)>
+: <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
 
 We can plot the result with the utility function =plot_path=:
 
@@ -144,7 +146,7 @@ ds2
 
 This returns the following TensorFlow Dataset:
 #+RESULTS: ds2
-: <PrefetchDataset shapes: ((4, 48, 3), (4, 6, 1)), types: (tf.float32, tf.float32)>
+: <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 #+NAME: ds2_plot
@@ -192,7 +194,7 @@ ds3
 
 This returns the following TensorFlow Dataset:
 #+RESULTS: ds3
-: <PrefetchDataset shapes: (((4, 48, 3), (4, 1, 8)), (4, 6, 1)), types: ((tf.float32, tf.float32), tf.float32)>
+: <PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 #+NAME: ds3_plot
