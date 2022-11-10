@@ -135,6 +135,7 @@ def test_batch_processor(
             batch_size=batch_size,
             prediction_size=prediction_size,
             shift=shift,
+            drop_remainder=False,
             **batch_kwds,
         )
 
@@ -164,6 +165,7 @@ def test_windowed_time_series_pipeline(
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
+        drop_remainder=True,
     )
     pipeline_kwds = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
 
@@ -206,6 +208,7 @@ def test_windowed_time_series_pipeline_groupby(
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
+        drop_remainder=False,
     )
     pipeline_kwds = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
 

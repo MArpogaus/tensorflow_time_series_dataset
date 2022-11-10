@@ -29,7 +29,7 @@ def test_windowed_time_series_dataset_factory(
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
-        drop_remainder=True,
+        drop_remainder=False,
     )
     factory_kwds = dict(
         cycle_length=1,
@@ -188,6 +188,7 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
         meta_columns=meta_columns_cycle,
         prediction_columns=prediction_columns,
         batch_size=batch_size,
+        drop_remainder=True,
     )
     factory_kwds = dict(
         cycle_length=len(ids),
