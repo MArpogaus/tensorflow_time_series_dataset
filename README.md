@@ -39,10 +39,10 @@ Suppose you have a dataset in the following form:
 
     import numpy as np
     import pandas as pd
-    
+
     # make things determeinisteic
     np.random.seed(1)
-    
+
     columns=['x1', 'x2', 'x3']
     periods=48 * 14
     test_df=pd.DataFrame(
@@ -79,7 +79,7 @@ The factory class `WindowedTimeSeriesDatasetFactory` is used to create a TensorF
 We will use it now to create a dataset with `48` historic time-steps as the input to predict a single time-step in the future.
 
     from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
-    
+
     factory_kwds=dict(
         history_size=48,
         prediction_size=1,
@@ -104,7 +104,7 @@ We can plot the result with the utility function `plot_path`:
         figsize=(8,4),
         **factory_kwds
     )
-    
+
     fname='.images/example1.png'
     fig.savefig(fname)
     fname
@@ -136,7 +136,7 @@ Again, lets plot the results to see what changed:
         figsize=(8,4),
         **factory_kwds
     )
-    
+
     fname='.images/example2.png'
     fig.savefig(fname)
     fname
@@ -183,7 +183,7 @@ Again, lets plot the results to see what changed:
         figsize=(8,4),
         **factory_kwds
     )
-    
+
     fname='.images/example3.png'
     fig.savefig(fname)
     fname
@@ -213,4 +213,3 @@ Project Link:
 ## Acknowledgments
 
 Parts of this work have been funded by the Federal Ministry for the Environment, Nature Conservation and Nuclear Safety due to a decision of the German Federal Parliament (AI4Grids: 67KI2012A).
-

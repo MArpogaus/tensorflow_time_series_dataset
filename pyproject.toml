@@ -38,12 +38,24 @@ train = [
 ]
 develop = [
     'tensorflow_time_series_dataset[train]',
-    'pytest',
+    'autoflake',
     'black',
     'isort',
-    'python-lsp-server[all]',
+    'pre-commit',
+    'pytest',
     'python-lsp-black',
+    'python-lsp-server[all]',
 ]
 
 [tool.setuptools.dynamic]
 version = {attr = "tensorflow_time_series_dataset.__version__"}
+
+[tool.autoflake]
+check = true
+expand-star-imports = true
+remove-unused-variables = true
+ignore-init-module-imports = true
+remove-all-unused-imports = true
+
+[tool.isort]
+profile = "black"
