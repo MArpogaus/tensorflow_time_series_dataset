@@ -38,6 +38,7 @@ develop = [
     'isort',
     'pre-commit',
     'pytest',
+    'pytest-xdist',
     'python-lsp-black',
     'python-lsp-server[all]',
 ]
