@@ -26,18 +26,13 @@ classifiers = [
 ]
 dependencies = [
         "tensorflow~=2.5",
-        "pandas~=1.3",
+        "pandas>=1.1.0",
         "matplotlib~=3.6"
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-train = [
-  'pandas',
-  'PyYAML'
-]
 develop = [
-    'tensorflow_time_series_dataset[train]',
     'autoflake',
     'black',
     'isort',
