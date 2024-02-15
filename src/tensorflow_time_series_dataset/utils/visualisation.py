@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 # -*- time-stamp-pattern: "changed[\s]+:[\s]+%%$"; -*-
 # AUTHOR INFORMATION ##########################################################
 # file    : visualisation.py
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 16:50:58 (Marcel Arpogaus)
-# changed : 2022-01-10 10:51:50 (Marcel Arpogaus)
+# changed : 2024-02-15 17:01:25 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -26,7 +25,7 @@ def plot_patch(
     prediction_columns,
     meta_columns=[],
     figsize=(16, 8),
-    **kwds
+    **kwds,
 ):
     x, y = next(ds.as_numpy_iterator())
     x1, x2 = None, None

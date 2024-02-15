@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-11-09 17:07:26 (Marcel Arpogaus)
+# changed : 2024-02-15 17:03:39 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -204,7 +204,8 @@ def get_ctxmgr(
     elif len(meta_columns) == 0 and history_size <= 0:
         ctxmgr = pytest.raises(
             AssertionError,
-            match="history_size must be a positive integer greater than zero, when no meta date is used",
+            match="history_size must be a positive integer greater than zero,"
+            " when no meta date is used",
         )
     elif history_size < 0:
         ctxmgr = pytest.raises(

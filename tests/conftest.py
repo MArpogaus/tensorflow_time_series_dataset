@@ -24,7 +24,10 @@ def gen_df(columns, date_range, id=0):
     df = pd.DataFrame(
         {
             "date_time": date_range,
-            **{c: [gen_value(c, l, id) for l in range(periods)] for c in columns},
+            **{
+                col: [gen_value(col, line, id) for line in range(periods)]
+                for col in columns
+            },
         }
     )
     return df

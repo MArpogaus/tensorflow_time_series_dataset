@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 import tensorflow as tf
-
 from tensorflow_time_series_dataset.pipeline.patch_generator import PatchGenerator
 from tensorflow_time_series_dataset.pipeline.patch_processor import PatchPreprocessor
 from tensorflow_time_series_dataset.pipeline.windowed_time_series_pipeline import (

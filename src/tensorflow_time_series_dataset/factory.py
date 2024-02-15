@@ -38,7 +38,7 @@ class WindowedTimeSeriesDatasetFactory:
         prediction_columns,
         meta_columns=[],
         dtype=tf.float32,
-        **pipline_kwds
+        **pipline_kwds,
     ):
         self.columns = set(history_columns + meta_columns + prediction_columns)
         self.preprocessors = []
@@ -48,7 +48,7 @@ class WindowedTimeSeriesDatasetFactory:
             history_columns=history_columns,
             meta_columns=meta_columns,
             prediction_columns=prediction_columns,
-            **{**self.default_pipline_kwds, **pipline_kwds}
+            **{**self.default_pipline_kwds, **pipline_kwds},
         )
 
     def add_preprocessor(self, preprocessor):

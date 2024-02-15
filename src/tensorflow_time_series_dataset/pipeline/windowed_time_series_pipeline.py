@@ -61,7 +61,6 @@ class WindowedTimeSeriesPipeline:
         self.drop_remainder = drop_remainder
 
     def __call__(self, ds):
-
         ds = ds.interleave(
             PatchGenerator(self.window_size, self.shift),
             cycle_length=self.cycle_length,

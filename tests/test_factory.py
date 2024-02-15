@@ -18,7 +18,6 @@ def test_windowed_time_series_dataset_factory(
     meta_columns,
     prediction_columns,
 ):
-
     df = time_series_df.set_index("date_time")
 
     common_kwds = dict(
@@ -62,7 +61,6 @@ def test_windowed_time_series_dataset_factory_groupby(
     meta_columns,
     prediction_columns,
 ):
-
     df = time_series_df_with_id.set_index("date_time")
 
     ids = df.id.unique()
@@ -88,7 +86,6 @@ def test_windowed_time_series_dataset_factory_groupby(
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-
         factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
         factory.add_preprocessor(
             GroupbyDatasetGenerator(
@@ -114,7 +111,6 @@ def test_windowed_time_series_dataset_factory_csv_loader(
     meta_columns,
     prediction_columns,
 ):
-
     test_data_path, df = tmp_csv
     df = df.set_index("date_time")
 

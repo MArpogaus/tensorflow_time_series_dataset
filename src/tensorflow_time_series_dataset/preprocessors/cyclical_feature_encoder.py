@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-09-01 11:13:50 (Marcel Arpogaus)
+# changed : 2024-02-15 17:02:59 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -50,9 +50,10 @@ class CyclicalFeatureEncoder:
         cos = np.cos(
             2 * np.pi * (cycl - self.cycl_min) / (self.cycl_max - self.cycl_min + 1)
         )
-        assert np.allclose(
-            cycl, self.decode(sin, cos)
-        ), f'Decoding failed. Is "cycl_min/max" ({self.cycl_min}/{self.cycl_max}) correct?'
+        assert np.allclose(cycl, self.decode(sin, cos)), (
+            'Decoding failed. Is "cycl_min/max"'
+            f"({self.cycl_min}/{self.cycl_max}) correct?"
+        )
         return sin, cos
 
     def __call__(self, data):

@@ -32,7 +32,7 @@ def _read_csv_file(file_path, date_time_col="date_time", **kwds):
         parse_dates=[date_time_col],
         infer_datetime_format=True,
         index_col=[date_time_col],
-        **kwds
+        **kwds,
     )
 
     if load_data.isnull().any().sum() != 0:

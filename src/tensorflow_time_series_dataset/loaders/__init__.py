@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2024-02-15 17:17:28 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,4 +22,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-from .csv_data_loader import CSVDataLoader
+from .csv_data_loader import CSVDataLoader  # noqa: F401
