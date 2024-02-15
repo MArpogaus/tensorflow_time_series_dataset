@@ -1,22 +1,25 @@
-[![img](https://img.shields.io/github/contributors/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_timeseries_dataset/graphs/contributors)
-[![img](https://img.shields.io/github/forks/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_timeseries_dataset/network/members)
-[![img](https://img.shields.io/github/stars/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_timeseries_dataset/stargazers)
-[![img](https://img.shields.io/github/issues/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_timeseries_dataset/issues)
-[![img](https://img.shields.io/github/license/MArpogaus/tensorflow_timeseries_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_timeseries_dataset/blob/master/LICENSE)
+[![img](https://img.shields.io/github/contributors/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/graphs/contributors)
+[![img](https://img.shields.io/github/forks/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/network/members)
+[![img](https://img.shields.io/github/stars/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/stargazers)
+[![img](https://img.shields.io/github/issues/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/issues)
+[![img](https://img.shields.io/github/license/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/LICENSE)
+[![img](https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow-timeseries-dataset/test.yaml.svg?label=test&style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/actions/workflows/test.yaml)
+[![img](https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/.pre-commit-config.yaml)
 [![img](https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555)](https://linkedin.com/in/MArpogaus)
 
 
 # TensorFlow time-series Dataset
 
 1.  [About The Project](#about-the-project)
-2.  [Usage](#usage)
-    1.  [Example Data](#org801d13b)
-    2.  [Single-Step Prediction](#org0c7c414)
-    3.  [Multi-Step Prediction](#org23f37ef)
-    4.  [Preprocessing: Add Metadata features](#org92ad4f6)
-3.  [License](#license)
-4.  [Contact](#contact)
-5.  [Acknowledgments](#acknowledgments)
+2.  [Usage](#org0301ec0)
+    1.  [Example Data](#org1397d97)
+    2.  [Single-Step Prediction](#org8e15547)
+    3.  [Multi-Step Prediction](#org3dd7dc8)
+    4.  [Preprocessing: Add Metadata features](#org7b66c9a)
+3.  [Contributing](#org141ef05)
+4.  [License](#orgd3ceeaa)
+5.  [Contact](#orgd84778f)
+6.  [Acknowledgments](#org8e17169)
 
 
 <a id="about-the-project"></a>
@@ -26,12 +29,12 @@
 This python package should help you to create TensorFlow datasets for time-series data.
 
 
-<a id="usage"></a>
+<a id="org0301ec0"></a>
 
 ## Usage
 
 
-<a id="org801d13b"></a>
+<a id="org1397d97"></a>
 
 ### Example Data
 
@@ -71,7 +74,7 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="org0c7c414"></a>
+<a id="org8e15547"></a>
 
 ### Single-Step Prediction
 
@@ -94,7 +97,7 @@ We will use it now to create a dataset with `48` historic time-steps as the inpu
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
+    <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
 
 We can plot the result with the utility function `plot_path`:
 
@@ -112,7 +115,7 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.png)
 
 
-<a id="org23f37ef"></a>
+<a id="org3dd7dc8"></a>
 
 ### Multi-Step Prediction
 
@@ -127,7 +130,7 @@ Lets now increase the prediction size to `6` half-hour time-steps.
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+    <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 
@@ -144,7 +147,7 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.png)
 
 
-<a id="org92ad4f6"></a>
+<a id="org7b66c9a"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -174,7 +177,7 @@ In this case we will be using the a class called `CyclicalFeatureEncoder` to enc
 
 This returns the following TensorFlow Dataset:
 
-    <PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+    <_PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 
@@ -191,24 +194,31 @@ Again, lets plot the results to see what changed:
 ![img](.images/example3.png)
 
 
-<a id="license"></a>
+<a id="org141ef05"></a>
+
+## Contributing
+
+Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [contributing guidelines](CONTRIBUTING.md).
+
+
+<a id="orgd3ceeaa"></a>
 
 ## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
-<a id="contact"></a>
+<a id="orgd84778f"></a>
 
 ## Contact
 
 [Marcel Arpogaus](https://github.com/marpogaus) - [marcel.arpogaus@gmail.com](mailto:marcel.arpogaus@gmail.com)
 
 Project Link:
-<https://github.com/MArpogaus/tensorflow_timeseries_dataset>
+<https://github.com/MArpogaus/tensorflow-timeseries-dataset>
 
 
-<a id="acknowledgments"></a>
+<a id="org8e17169"></a>
 
 ## Acknowledgments
 
