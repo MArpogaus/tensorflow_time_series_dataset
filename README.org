@@ -17,28 +17,15 @@
 #+TOC: headlines 2 local
 
 ** About The Project
-   :PROPERTIES:
-   :CUSTOM_ID: about-the-project
-   :END:
+
 This python package should help you to create TensorFlow datasets for time-series data.
 
-** Getting Started :noexport:
-   :PROPERTIES:
-   :CUSTOM_ID: getting-started
-   :END:
-This is an example of how you may give instructions on setting up your
-project locally. To get a local copy up and running follow these simple
-example steps.
+** Installation
 
-*** Prerequisites
+This package is available on [[https://pypi.org/project/tensorflow-time-series-dataset/][PyPI]].
+You install it and all of its dependencies using pip:
 
-  - tensorflow>=2.5.*
-  - pandas>=1.3.*
-  - matplotlib>=3.6.2
-
-*** Installation
-
-#+begin_src bash
+#+begin_src bash :exports nil
 pip install tensorflow_time_series_dataset
 #+end_src
 
@@ -61,7 +48,7 @@ test_df=pd.DataFrame(
     index=pd.date_range(
         start='1/1/1992',
         periods=periods,
-        freq='30T'
+        freq='30min'
     ),
     data=np.stack(
         [

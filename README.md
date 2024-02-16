@@ -12,31 +12,42 @@
 
 # TensorFlow time-series Dataset
 
-1.  [About The Project](#about-the-project)
-2.  [Usage](#org5ceb9c6)
-    1.  [Example Data](#orgde6aeb6)
-    2.  [Single-Step Prediction](#orgf4338fa)
-    3.  [Multi-Step Prediction](#orgd346cb0)
-    4.  [Preprocessing: Add Metadata features](#org394b79a)
-3.  [Contributing](#org01c4e9f)
-4.  [License](#org02adeea)
-5.  [Contact](#org17ef52d)
-6.  [Acknowledgments](#org7793597)
+1.  [About The Project](#org48e7e83)
+2.  [Installation](#org4124adc)
+3.  [Usage](#orgc2c9462)
+    1.  [Example Data](#org9a62649)
+    2.  [Single-Step Prediction](#org2b7f25f)
+    3.  [Multi-Step Prediction](#org96a3f28)
+    4.  [Preprocessing: Add Metadata features](#org869ce63)
+4.  [Contributing](#org8423a52)
+5.  [License](#orgaa9c5fe)
+6.  [Contact](#org5611eae)
+7.  [Acknowledgments](#orgce02d96)
 
 
-<a id="about-the-project"></a>
+<a id="org48e7e83"></a>
 
 ## About The Project
 
 This python package should help you to create TensorFlow datasets for time-series data.
 
 
-<a id="org5ceb9c6"></a>
+<a id="org4124adc"></a>
+
+## Installation
+
+This package is available on [PyPI](https://pypi.org/project/tensorflow-time-series-dataset/).
+You install it and all of its dependencies using pip:
+
+    pip install tensorflow_time_series_dataset
+
+
+<a id="orgc2c9462"></a>
 
 ## Usage
 
 
-<a id="orgde6aeb6"></a>
+<a id="org9a62649"></a>
 
 ### Example Data
 
@@ -54,7 +65,7 @@ Suppose you have a dataset in the following form:
         index=pd.date_range(
             start='1/1/1992',
             periods=periods,
-            freq='30T'
+            freq='30min'
         ),
         data=np.stack(
             [
@@ -76,7 +87,7 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="orgf4338fa"></a>
+<a id="org2b7f25f"></a>
 
 ### Single-Step Prediction
 
@@ -117,7 +128,7 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.svg)
 
 
-<a id="orgd346cb0"></a>
+<a id="org96a3f28"></a>
 
 ### Multi-Step Prediction
 
@@ -149,7 +160,7 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.svg)
 
 
-<a id="org394b79a"></a>
+<a id="org869ce63"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -196,21 +207,21 @@ Again, lets plot the results to see what changed:
 ![img](.images/example3.svg)
 
 
-<a id="org01c4e9f"></a>
+<a id="org8423a52"></a>
 
 ## Contributing
 
 Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [contributing guidelines](CONTRIBUTING.md).
 
 
-<a id="org02adeea"></a>
+<a id="orgaa9c5fe"></a>
 
 ## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
-<a id="org17ef52d"></a>
+<a id="org5611eae"></a>
 
 ## Contact
 
@@ -220,7 +231,7 @@ Project Link:
 <https://github.com/MArpogaus/tensorflow_time_series_dataset>
 
 
-<a id="org7793597"></a>
+<a id="orgce02d96"></a>
 
 ## Acknowledgments
 
