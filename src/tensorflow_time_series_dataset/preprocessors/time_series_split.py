@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2024-02-16 10:28:30 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,7 +22,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-import pandas as pd
 
 
 class TimeSeriesSplit:
@@ -34,8 +33,9 @@ class TimeSeriesSplit:
         self.split = split
 
     def __call__(self, data):
-        days = pd.date_range(data.index.min(), data.index.max(), freq="D")
-        days = days.to_numpy().astype("datetime64[m]")
+        data = data.sort_index()
+        days = data.index.date
+        days = days.astype("datetime64[m]")
         right = days[int(len(days) * self.split_size)]
         left = right - 1
         if self.split == self.LEFT:

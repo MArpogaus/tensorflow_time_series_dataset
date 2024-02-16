@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2024-02-16 10:30:32 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -30,7 +30,6 @@ def _read_csv_file(file_path, date_time_col="date_time", **kwds):
     load_data = pd.read_csv(
         file_path,
         parse_dates=[date_time_col],
-        infer_datetime_format=True,
         index_col=[date_time_col],
         **kwds,
     )

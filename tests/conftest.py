@@ -51,7 +51,7 @@ def gen_df_with_id(ids, columns, date_range):
 def time_series_df(request):
     df = gen_df(
         columns=request.param[0],
-        date_range=pd.date_range("1/1/1", periods=request.param[1], freq="30T"),
+        date_range=pd.date_range("1/1/1", periods=request.param[1], freq="30min"),
     )
     return df
 
@@ -67,7 +67,7 @@ def time_series_df_with_id(request):
     df = gen_df_with_id(
         ids=ids,
         columns=columns,
-        date_range=pd.date_range("1/1/1", periods=periods, freq="30T"),
+        date_range=pd.date_range("1/1/1", periods=periods, freq="30min"),
     )
     return df
 
