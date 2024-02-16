@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-11-09 17:02:21 (Marcel Arpogaus)
+# changed : 2024-02-16 15:43:05 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,4 +22,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-__version__ = "0.1.0"
+__version__ = "0.1.1"
