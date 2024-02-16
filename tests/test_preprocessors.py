@@ -10,7 +10,7 @@ from tensorflow_time_series_dataset.preprocessors import (
 
 @pytest.fixture
 def cycl_df():
-    date_range = pd.date_range(start="1/1/1992", end="31/12/1992", freq="30T")
+    date_range = pd.date_range(start="1/1/1992", end="31/12/1992", freq="30min")
     test_df = pd.DataFrame(
         index=date_range,
         data=np.stack(
