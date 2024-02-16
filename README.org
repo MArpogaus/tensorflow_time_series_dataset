@@ -10,6 +10,8 @@
 [[https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/.pre-commit-config.yaml][https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square]]
 [[https://linkedin.com/in/MArpogaus][https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555]]
 
+[[https://pypi.org/project/tensorflow-time-series-dataset][https://img.shields.io/pypi/v/tensorflow-time-series-dataset.svg?style=flat-square]]
+
 * TensorFlow time-series Dataset
 
 #+TOC: headlines 2 local
@@ -37,7 +39,7 @@ example steps.
 *** Installation
 
 #+begin_src bash
-pip install git+https://github.com/MArpogaus/tensorflow-timeseries-dataset.git
+pip install tensorflow-time-series-dataset
 #+end_src
 
 ** Usage
@@ -107,7 +109,7 @@ ds1
 This returns the following TensorFlow Dataset:
 
 #+RESULTS: ds1
-: <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
+: <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
 
 We can plot the result with the utility function =plot_path=:
 
@@ -120,13 +122,13 @@ fig=plot_patch(
     ,**factory_kwds
 )
 
-fname='.images/example1.png'
+fname='.images/example1.svg'
 fig.savefig(fname)
 fname
 #+end_src
 
 #+RESULTS: ds1_plot
-[[file:.images/example1.png]]
+[[file:.images/example1.svg]]
 
 *** Multi-Step Prediction
 Lets now increase the prediction size to =6= half-hour time-steps.
@@ -143,7 +145,7 @@ ds2
 
 This returns the following TensorFlow Dataset:
 #+RESULTS: ds2
-: <PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+: <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 #+NAME: ds2_plot
@@ -154,13 +156,13 @@ fig=plot_patch(
     **factory_kwds
 )
 
-fname='.images/example2.png'
+fname='.images/example2.svg'
 fig.savefig(fname)
 fname
 #+end_src
 
 #+RESULTS: ds2_plot
-[[file:.images/example2.png]]
+[[file:.images/example2.svg]]
 
 *** Preprocessing: Add Metadata features
 Preprocessors can be used to transform the data before it is fed into the model.
@@ -202,13 +204,13 @@ fig=plot_patch(
     **factory_kwds
 )
 
-fname='.images/example3.png'
+fname='.images/example3.svg'
 fig.savefig(fname)
 fname
 #+end_src
 
 #+RESULTS: ds3_plot
-[[file:.images/example3.png]]
+[[file:.images/example3.svg]]
 
 ** Contributing
 

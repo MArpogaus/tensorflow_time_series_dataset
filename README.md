@@ -7,19 +7,21 @@
 [![img](https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/.pre-commit-config.yaml)
 [![img](https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555)](https://linkedin.com/in/MArpogaus)
 
+[![img](https://img.shields.io/pypi/v/tensorflow-time-series-dataset.svg?style=flat-square)](https://pypi.org/project/tensorflow-time-series-dataset)
+
 
 # TensorFlow time-series Dataset
 
 1.  [About The Project](#about-the-project)
-2.  [Usage](#org0301ec0)
-    1.  [Example Data](#org1397d97)
-    2.  [Single-Step Prediction](#org8e15547)
-    3.  [Multi-Step Prediction](#org3dd7dc8)
-    4.  [Preprocessing: Add Metadata features](#org7b66c9a)
-3.  [Contributing](#org141ef05)
-4.  [License](#orgd3ceeaa)
-5.  [Contact](#orgd84778f)
-6.  [Acknowledgments](#org8e17169)
+2.  [Usage](#org6cce3cf)
+    1.  [Example Data](#orgdcbe859)
+    2.  [Single-Step Prediction](#org9146fba)
+    3.  [Multi-Step Prediction](#org8d2da39)
+    4.  [Preprocessing: Add Metadata features](#org65236db)
+3.  [Contributing](#org07d9730)
+4.  [License](#orgf9b82cf)
+5.  [Contact](#org36cca87)
+6.  [Acknowledgments](#orge3ed0f5)
 
 
 <a id="about-the-project"></a>
@@ -29,12 +31,12 @@
 This python package should help you to create TensorFlow datasets for time-series data.
 
 
-<a id="org0301ec0"></a>
+<a id="org6cce3cf"></a>
 
 ## Usage
 
 
-<a id="org1397d97"></a>
+<a id="orgdcbe859"></a>
 
 ### Example Data
 
@@ -74,7 +76,7 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="org8e15547"></a>
+<a id="org9146fba"></a>
 
 ### Single-Step Prediction
 
@@ -108,14 +110,14 @@ We can plot the result with the utility function `plot_path`:
         **factory_kwds
     )
 
-    fname='.images/example1.png'
+    fname='.images/example1.svg'
     fig.savefig(fname)
     fname
 
-![img](.images/example1.png)
+![img](.images/example1.svg)
 
 
-<a id="org3dd7dc8"></a>
+<a id="org8d2da39"></a>
 
 ### Multi-Step Prediction
 
@@ -140,14 +142,14 @@ Again, lets plot the results to see what changed:
         **factory_kwds
     )
 
-    fname='.images/example2.png'
+    fname='.images/example2.svg'
     fig.savefig(fname)
     fname
 
-![img](.images/example2.png)
+![img](.images/example2.svg)
 
 
-<a id="org7b66c9a"></a>
+<a id="org65236db"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -187,28 +189,28 @@ Again, lets plot the results to see what changed:
         **factory_kwds
     )
 
-    fname='.images/example3.png'
+    fname='.images/example3.svg'
     fig.savefig(fname)
     fname
 
-![img](.images/example3.png)
+![img](.images/example3.svg)
 
 
-<a id="org141ef05"></a>
+<a id="org07d9730"></a>
 
 ## Contributing
 
 Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [contributing guidelines](CONTRIBUTING.md).
 
 
-<a id="orgd3ceeaa"></a>
+<a id="orgf9b82cf"></a>
 
 ## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
-<a id="orgd84778f"></a>
+<a id="org36cca87"></a>
 
 ## Contact
 
@@ -218,7 +220,7 @@ Project Link:
 <https://github.com/MArpogaus/tensorflow-timeseries-dataset>
 
 
-<a id="org8e17169"></a>
+<a id="orge3ed0f5"></a>
 
 ## Acknowledgments
 
