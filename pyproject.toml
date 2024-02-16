@@ -47,6 +47,9 @@ test = [
   'pytest-xdist'
 ]
 
+[project.urls]
+Homepage = "https://github.com/MArpogaus/tensorflow_timeseries_dataset"
+
 [tool.ruff]
 indent-width = 4
 line-length = 88
