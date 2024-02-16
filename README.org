@@ -1,16 +1,16 @@
 # Inspired by: https://github.com/othneildrew/Best-README-Template
 #+OPTIONS: toc:nil
 
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/graphs/contributors][https://img.shields.io/github/contributors/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/network/members][https://img.shields.io/github/forks/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/stargazers][https://img.shields.io/github/stars/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/issues][https://img.shields.io/github/issues/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/LICENSE][https://img.shields.io/github/license/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/actions/workflows/test.yaml][https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow-timeseries-dataset/test.yaml.svg?label=test&style=flat-square]]
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/.pre-commit-config.yaml][https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/graphs/contributors][https://img.shields.io/github/contributors/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/network/members][https://img.shields.io/github/forks/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/stargazers][https://img.shields.io/github/stars/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/issues][https://img.shields.io/github/issues/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/LICENSE][https://img.shields.io/github/license/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/actions/workflows/test.yaml][https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow_time_series_dataset/test.yaml.svg?label=test&style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/.pre-commit-config.yaml][https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square]]
 [[https://linkedin.com/in/MArpogaus][https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555]]
 
-[[https://pypi.org/project/tensorflow-time-series-dataset][https://img.shields.io/pypi/v/tensorflow-time-series-dataset.svg?style=flat-square]]
+[[https://pypi.org/project/tensorflow_time_series_dataset][https://img.shields.io/pypi/v/tensorflow_time_series_dataset.svg?style=flat-square]]
 
 * TensorFlow time-series Dataset
 
@@ -39,7 +39,7 @@ example steps.
 *** Installation
 
 #+begin_src bash
-pip install tensorflow-time-series-dataset
+pip install tensorflow_time_series_dataset
 #+end_src
 
 ** Usage
@@ -226,7 +226,7 @@ Distributed under the [[file:LICENSE][Apache License 2.0]]
 [[https://github.com/marpogaus][Marcel Arpogaus]] - [[mailto:marcel.arpogaus@gmail.com][marcel.arpogaus@gmail.com]]
 
 Project Link:
-[[https://github.com/MArpogaus/tensorflow-timeseries-dataset]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset]]
 
 ** Acknowledgments
 

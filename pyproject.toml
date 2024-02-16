@@ -48,7 +48,7 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/MArpogaus/tensorflow_timeseries_dataset"
+Homepage = "https://github.com/MArpogaus/tensorflow_time_series_dataset"
 
 [tool.ruff]
 indent-width = 4

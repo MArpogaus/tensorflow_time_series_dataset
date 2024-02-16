@@ -1,27 +1,27 @@
-[![img](https://img.shields.io/github/contributors/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/graphs/contributors)
-[![img](https://img.shields.io/github/forks/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/network/members)
-[![img](https://img.shields.io/github/stars/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/stargazers)
-[![img](https://img.shields.io/github/issues/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/issues)
-[![img](https://img.shields.io/github/license/MArpogaus/tensorflow-timeseries-dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/LICENSE)
-[![img](https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow-timeseries-dataset/test.yaml.svg?label=test&style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/actions/workflows/test.yaml)
-[![img](https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square)](https://github.com/MArpogaus/tensorflow-timeseries-dataset/blob/main/.pre-commit-config.yaml)
+[![img](https://img.shields.io/github/contributors/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/graphs/contributors)
+[![img](https://img.shields.io/github/forks/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/network/members)
+[![img](https://img.shields.io/github/stars/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/stargazers)
+[![img](https://img.shields.io/github/issues/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/issues)
+[![img](https://img.shields.io/github/license/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/LICENSE)
+[![img](https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow_time_series_dataset/test.yaml.svg?label=test&style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/actions/workflows/test.yaml)
+[![img](https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square)](https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/.pre-commit-config.yaml)
 [![img](https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555)](https://linkedin.com/in/MArpogaus)
 
-[![img](https://img.shields.io/pypi/v/tensorflow-time-series-dataset.svg?style=flat-square)](https://pypi.org/project/tensorflow-time-series-dataset)
+[![img](https://img.shields.io/pypi/v/tensorflow_time_series_dataset.svg?style=flat-square)](https://pypi.org/project/tensorflow_time_series_dataset)
 
 
 # TensorFlow time-series Dataset
 
 1.  [About The Project](#about-the-project)
-2.  [Usage](#org6cce3cf)
-    1.  [Example Data](#orgdcbe859)
-    2.  [Single-Step Prediction](#org9146fba)
-    3.  [Multi-Step Prediction](#org8d2da39)
-    4.  [Preprocessing: Add Metadata features](#org65236db)
-3.  [Contributing](#org07d9730)
-4.  [License](#orgf9b82cf)
-5.  [Contact](#org36cca87)
-6.  [Acknowledgments](#orge3ed0f5)
+2.  [Usage](#org5ceb9c6)
+    1.  [Example Data](#orgde6aeb6)
+    2.  [Single-Step Prediction](#orgf4338fa)
+    3.  [Multi-Step Prediction](#orgd346cb0)
+    4.  [Preprocessing: Add Metadata features](#org394b79a)
+3.  [Contributing](#org01c4e9f)
+4.  [License](#org02adeea)
+5.  [Contact](#org17ef52d)
+6.  [Acknowledgments](#org7793597)
 
 
 <a id="about-the-project"></a>
@@ -31,12 +31,12 @@
 This python package should help you to create TensorFlow datasets for time-series data.
 
 
-<a id="org6cce3cf"></a>
+<a id="org5ceb9c6"></a>
 
 ## Usage
 
 
-<a id="orgdcbe859"></a>
+<a id="orgde6aeb6"></a>
 
 ### Example Data
 
@@ -76,7 +76,7 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="org9146fba"></a>
+<a id="orgf4338fa"></a>
 
 ### Single-Step Prediction
 
@@ -117,7 +117,7 @@ We can plot the result with the utility function `plot_path`:
 ![img](.images/example1.svg)
 
 
-<a id="org8d2da39"></a>
+<a id="orgd346cb0"></a>
 
 ### Multi-Step Prediction
 
@@ -149,7 +149,7 @@ Again, lets plot the results to see what changed:
 ![img](.images/example2.svg)
 
 
-<a id="org65236db"></a>
+<a id="org394b79a"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -196,31 +196,31 @@ Again, lets plot the results to see what changed:
 ![img](.images/example3.svg)
 
 
-<a id="org07d9730"></a>
+<a id="org01c4e9f"></a>
 
 ## Contributing
 
 Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [contributing guidelines](CONTRIBUTING.md).
 
 
-<a id="orgf9b82cf"></a>
+<a id="org02adeea"></a>
 
 ## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
-<a id="org36cca87"></a>
+<a id="org17ef52d"></a>
 
 ## Contact
 
 [Marcel Arpogaus](https://github.com/marpogaus) - [marcel.arpogaus@gmail.com](mailto:marcel.arpogaus@gmail.com)
 
 Project Link:
-<https://github.com/MArpogaus/tensorflow-timeseries-dataset>
+<https://github.com/MArpogaus/tensorflow_time_series_dataset>
 
 
-<a id="orge3ed0f5"></a>
+<a id="org7793597"></a>
 
 ## Acknowledgments
 
