@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-19 13:26:55 (Marcel Arpogaus)
+# changed : 2024-02-19 13:55:19 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -23,4 +23,3 @@
 # limitations under the License.
 ###############################################################################
 """.. include:: ../../README.md"""
-__version__ = "0.1.1"

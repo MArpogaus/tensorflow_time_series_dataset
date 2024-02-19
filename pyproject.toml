@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools >= 61.0.0"]
+requires = ["setuptools >= 61", "setuptools_scm>=7"]
 
 [project]
 classifiers = [
@@ -62,5 +62,7 @@ target-version = "py37"
 [tool.ruff.lint]
 select = ["I", "E", "F"]
 
-[tool.setuptools.dynamic]
-version = {attr = "tensorflow_time_series_dataset.__version__"}
+[tool.setuptools_scm]
+# https://stackoverflow.com/a/74404703
+# omits local version, useful because pypi does not support it
+local_scheme = "no-local-version"
