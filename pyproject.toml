@@ -35,12 +35,16 @@ requires-python = ">=3.7"
 
 [project.optional-dependencies]
 develop = [
-  'python_project_skeleton[test]',
+  'tensorflow_time_series_dataset[test]',
   'ipykernel',
   'pre-commit',
   'python-lsp-ruff',
   'python-lsp-server[all]',
   'ruff'
+]
+docs = [
+  'tensorflow_time_series_dataset[test]',
+  'pdoc'
 ]
 test = [
   'pytest',
