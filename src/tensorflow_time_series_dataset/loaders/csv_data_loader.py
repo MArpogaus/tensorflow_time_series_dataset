@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-16 10:30:32 (Marcel Arpogaus)
+# changed : 2024-02-19 13:01:07 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,16 +22,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
+from typing import Union
+
 import pandas as pd
 
 
-def _read_csv_file(file_path, date_time_col="date_time", **kwds):
-    file_path = file_path
+def _read_csv_file(
+    file_path: str, date_time_col: str = "date_time", **kwargs: Union[str, bool]
+) -> pd.DataFrame:
+    """Read CSV file into a pandas DataFrame.
+
+    Parameters
+    ----------
+    file_path : str
+        File path to the CSV file.
+    date_time_col : str, optional
+        Name of the datetime column in the CSV file.
+    **kwargs
+        Additional keyword arguments for pd.read_csv.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the data from the CSV file.
+
+    Raises
+    ------
+    ValueError
+        If the data contains NaN values.
+
+    """
     load_data = pd.read_csv(
         file_path,
         parse_dates=[date_time_col],
         index_col=[date_time_col],
-        **kwds,
+        **kwargs,
     )
 
     if load_data.isnull().any().sum() != 0:
@@ -41,9 +66,28 @@ def _read_csv_file(file_path, date_time_col="date_time", **kwds):
 
 
 class CSVDataLoader:
-    def __init__(self, file_path, **kwds):
-        self.file_path = file_path
-        self.kwds = kwds
+    """Load data from a CSV file.
 
-    def __call__(self):
-        return _read_csv_file(self.file_path, **self.kwds)
+    Parameters
+    ----------
+    file_path : str
+        File path to the CSV file.
+    **kwargs
+        Additional keyword arguments for pd.read_csv.
+
+    """
+
+    def __init__(self, file_path: str, **kwargs: Union[str, bool]):
+        self.file_path = file_path
+        self.kwargs = kwargs
+
+    def __call__(self) -> pd.DataFrame:
+        """Load data from the CSV file using _read_csv_file.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the data from the CSV file.
+
+        """
+        return _read_csv_file(self.file_path, **self.kwargs)

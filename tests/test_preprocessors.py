@@ -37,8 +37,8 @@ def test_cyclical_data_encoder(cycl_df):
             cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
         ),
     }
-    for name, kwds in encs.items():
-        enc = CyclicalFeatureEncoder(name, **kwds)
+    for name, kwargs in encs.items():
+        enc = CyclicalFeatureEncoder(name, **kwargs)
         enc_dat = enc(cycl_df)
         cycl = enc.cycl_getter(cycl_df, name)
         assert np.isclose(
@@ -57,8 +57,8 @@ def test_cyclical_data_encoder_except(cycl_df):
             cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
         ),
     }
-    for name, kwds in encs.items():
-        enc = CyclicalFeatureEncoder(name, **kwds)
+    for name, kwargs in encs.items():
+        enc = CyclicalFeatureEncoder(name, **kwargs)
         with pytest.raises(AssertionError):
             enc(cycl_df)
 

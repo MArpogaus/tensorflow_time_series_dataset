@@ -4,29 +4,57 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 16:50:58 (Marcel Arpogaus)
-# changed : 2024-02-15 17:01:25 (Marcel Arpogaus)
+# changed : 2024-02-19 12:07:12 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
 # ...
 ###############################################################################
+from typing import Any, List, Optional, Tuple
+
 import matplotlib.pyplot as plt
 import numpy as np
-
-prop_cycle = plt.rcParams["axes.prop_cycle"]
-colors = prop_cycle.by_key()["color"]
+from tensorflow.data import Dataset
 
 
 def plot_patch(
-    ds,
-    history_size,
-    prediction_size,
-    history_columns,
-    prediction_columns,
-    meta_columns=[],
-    figsize=(16, 8),
-    **kwds,
-):
+    ds: Dataset,
+    history_size: int,
+    prediction_size: int,
+    history_columns: List[str],
+    prediction_columns: List[str],
+    meta_columns: Optional[List[str]] = None,
+    figsize: Tuple[int, int] = (16, 8),
+    **kwargs: Any,
+) -> plt.Figure:
+    """Plot history and prediction data from a dataset.
+
+    Parameters
+    ----------
+    ds : Dataset
+        Dataset to extract data from.
+    history_size : int
+        Number of timesteps in the history.
+    prediction_size : int
+        Number of timesteps in the prediction.
+    history_columns : List[str]
+        Columns to use for history data.
+    prediction_columns : List[str]
+        Columns to use for prediction data.
+    meta_columns : List[str], optional
+        Columns for additional meta data. Defaults to [].
+    figsize : Tuple[int, int], optional
+        Size of the figure. Defaults to (16, 8).
+
+    Returns
+    -------
+    plt.Figure
+        The generated plot figure.
+
+    """
+    prop_cycle = plt.rcParams["axes.prop_cycle"]
+    colors = prop_cycle.by_key()["color"]
+
     x, y = next(ds.as_numpy_iterator())
     x1, x2 = None, None
 

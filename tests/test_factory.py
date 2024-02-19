@@ -5,7 +5,7 @@ from tensorflow_time_series_dataset.preprocessors import (
     GroupbyDatasetGenerator,
     TimeSeriesSplit,
 )
-from tensorflow_time_series_dataset.utils.test import get_ctxmgr, validate_dataset
+from tensorflow_time_series_dataset.utils.test import validate_args, validate_dataset
 
 
 def test_windowed_time_series_dataset_factory(
@@ -20,7 +20,7 @@ def test_windowed_time_series_dataset_factory(
 ):
     df = time_series_df.set_index("date_time")
 
-    common_kwds = dict(
+    common_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -30,24 +30,24 @@ def test_windowed_time_series_dataset_factory(
         batch_size=batch_size,
         drop_remainder=False,
     )
-    factory_kwds = dict(
+    factory_kwargs = dict(
         cycle_length=1,
         shuffle_buffer_size=100,
     )
 
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
+        factory = WindowedTimeSeriesDatasetFactory(**common_kwargs, **factory_kwargs)
         ds = factory(df)
         validate_dataset(
             df,
             ds,
-            **common_kwds,
+            **common_kwargs,
         )
 
 
@@ -64,7 +64,7 @@ def test_windowed_time_series_dataset_factory_groupby(
     df = time_series_df_with_id.set_index("date_time")
 
     ids = df.id.unique()
-    common_kwds = dict(
+    common_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -74,19 +74,19 @@ def test_windowed_time_series_dataset_factory_groupby(
         batch_size=batch_size,
         drop_remainder=True,
     )
-    factory_kwds = dict(
+    factory_kwargs = dict(
         cycle_length=len(ids),
         shuffle_buffer_size=100,
     )
 
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
+        factory = WindowedTimeSeriesDatasetFactory(**common_kwargs, **factory_kwargs)
         factory.add_preprocessor(
             GroupbyDatasetGenerator(
                 "id", columns=history_columns + meta_columns + prediction_columns
@@ -97,7 +97,7 @@ def test_windowed_time_series_dataset_factory_groupby(
         validate_dataset(
             df,
             ds,
-            **common_kwds,
+            **common_kwargs,
         )
 
 
@@ -114,7 +114,7 @@ def test_windowed_time_series_dataset_factory_csv_loader(
     test_data_path, df = tmp_csv
     df = df.set_index("date_time")
 
-    common_kwds = dict(
+    common_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -124,24 +124,24 @@ def test_windowed_time_series_dataset_factory_csv_loader(
         batch_size=batch_size,
         drop_remainder=False,
     )
-    factory_kwds = dict(
+    factory_kwargs = dict(
         cycle_length=1,
         shuffle_buffer_size=100,
     )
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
+        factory = WindowedTimeSeriesDatasetFactory(**common_kwargs, **factory_kwargs)
         factory.set_data_loader(CSVDataLoader(file_path=test_data_path))
         ds = factory()
         validate_dataset(
             df,
             ds,
-            **common_kwds,
+            **common_kwargs,
         )
 
 
@@ -156,7 +156,7 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
     prediction_columns,
 ):
     # define encoder args
-    # [name: kwds]
+    # [name: kwargs]
     encs = {
         "weekday": dict(cycl_max=6),
         "dayofyear": dict(cycl_max=366, cycl_min=1),
@@ -168,15 +168,15 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
     }
     test_data_path, df = tmp_csv_with_id
     test_df = df.set_index("date_time")
-    for name, kwds in encs.items():
-        enc = CyclicalFeatureEncoder(name, **kwds)
+    for name, kwargs in encs.items():
+        enc = CyclicalFeatureEncoder(name, **kwargs)
         test_df = enc(test_df)
     splitter = TimeSeriesSplit(0.5, TimeSeriesSplit.LEFT)
     test_df = splitter(test_df)
 
     ids = df.id.unique()
 
-    common_kwds = dict(
+    common_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -186,22 +186,22 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
         batch_size=batch_size,
         drop_remainder=True,
     )
-    factory_kwds = dict(
+    factory_kwargs = dict(
         cycle_length=len(ids),
         shuffle_buffer_size=100,
     )
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns_cycle,
         prediction_columns=prediction_columns,
     ):
-        factory = WindowedTimeSeriesDatasetFactory(**common_kwds, **factory_kwds)
+        factory = WindowedTimeSeriesDatasetFactory(**common_kwargs, **factory_kwargs)
         factory.set_data_loader(CSVDataLoader(file_path=test_data_path))
         factory.add_preprocessor(splitter)
-        for name, kwds in encs.items():
-            factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwds))
+        for name, kwargs in encs.items():
+            factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwargs))
         factory.add_preprocessor(
             GroupbyDatasetGenerator(
                 "id", columns=history_columns + meta_columns_cycle + prediction_columns
@@ -211,5 +211,5 @@ def test_windowed_time_series_dataset_factory_csv_loader_with_preprocessors(
         validate_dataset(
             test_df,
             ds,
-            **common_kwds,
+            **common_kwargs,
         )

@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2024-02-19 12:35:49 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -23,20 +23,48 @@
 # limitations under the License.
 ###############################################################################
 # REQUIRED PYTHON MODULES #####################################################
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
 
 
 class TimeSeriesKFold:
-    def __init__(self, fold, n_folds=20):
-        self.n_folds = n_folds
-        self.fold = fold
+    """Time series cross-validation using a sliding window.
 
-    def __call__(self, data):
-        days = pd.date_range(data.index.min(), data.index.max(), freq="D")
-        fold_idx = np.array_split(days.to_numpy(), self.n_folds)
-        folds = {
-            f: (idx[[0, -1]].astype("datetime64[m]") + [0, 60 * 24 - 1])
+    Parameters
+    ----------
+    fold : int
+        The current fold to be used.
+    n_folds : int, optional
+        The total number of folds (the default is 20).
+
+    """
+
+    def __init__(self, fold: int, n_folds: int = 20) -> None:
+        self.n_folds: int = n_folds
+        self.fold: int = fold
+
+    def __call__(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Divide the data into train/test sets for the current fold.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The data to be folded, requiring a datetime index.
+
+        Returns
+        -------
+        pd.DataFrame
+            The subset of data corresponding to the current fold.
+
+        """
+        days: pd.DatetimeIndex = pd.date_range(
+            data.index.min(), data.index.max(), freq="D"
+        )
+        fold_idx: List[np.ndarray] = np.array_split(days.to_numpy(), self.n_folds)
+        folds: Dict[int, List[str]] = {
+            f: (idx[[0, -1]].astype("datetime64[m]") + np.array([0, 60 * 24 - 1]))
             .astype(str)
             .tolist()
             for f, idx in enumerate(fold_idx)

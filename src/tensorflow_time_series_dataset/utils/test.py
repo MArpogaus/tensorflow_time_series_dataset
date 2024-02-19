@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-15 17:03:39 (Marcel Arpogaus)
+# changed : 2024-02-19 13:09:50 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,25 +22,83 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-from contextlib import nullcontext as does_not_raise
+from contextlib import nullcontext
+from typing import ContextManager, List, Union
 
 import numpy as np
 import pytest
+from numpy.typing import ArrayLike
+from pandas import DataFrame
 
 
-def get_idx(ref, val):
+def get_idx(ref: ArrayLike, val: float) -> int:
+    """Get the index of a value in a reference array.
+
+    Parameters
+    ----------
+    ref : ArrayLike
+        Reference array to search.
+    val : float
+        Value to find in the reference array.
+
+    Returns
+    -------
+    int
+        Index of the value in the reference array.
+
+    """
     idx = np.where(ref == val)[0]
-    assert len(idx) == 1, "Could not determine index from refference value"
+    assert len(idx) == 1, "Could not determine index from reference value"
     return int(idx)
 
 
-def gen_patch(df, idx, size):
+def gen_patch(df: DataFrame, idx: int, size: int) -> np.ndarray:
+    """Generate a patch of data from a DataFrame.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing the data.
+    idx : int
+        Starting index of the patch.
+    size : int
+        Size of the patch to generate.
+
+    Returns
+    -------
+    np.ndarray
+        Patch of data from the DataFrame.
+
+    """
     x = df.values[idx : idx + size]
     assert len(x) == size, "Could not generate patch from reference data"
     return x
 
 
-def gen_batch(df, columns, size, refs, ref_col):
+def gen_batch(
+    df: DataFrame, columns: list, size: int, refs: ArrayLike, ref_col: str
+) -> np.ndarray:
+    """Generate a batch of data from a DataFrame based on reference values.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing the data.
+    columns : list
+        List of columns to include in the batch.
+    size : int
+        Size of each patch in the batch.
+    refs : ArrayLike
+        Array of reference values.
+    ref_col : str
+        Name of the column containing reference values.
+
+    Returns
+    -------
+    np.ndarray
+        Batch of data based on reference values.
+
+    """
     batch = []
     columns = list(sorted(columns))
     for ref in refs:
@@ -56,21 +114,58 @@ def gen_batch(df, columns, size, refs, ref_col):
 
 
 def validate_dataset(
-    df,
-    ds,
-    batch_size,
-    history_size,
-    prediction_size,
-    shift,
-    history_columns,
-    meta_columns,
-    prediction_columns,
-    drop_remainder,
-    history_reference_column="ref",
-    meta_reference_column="ref",
-    prediction_reference_column="ref",
-    **kwds,
-):
+    df: DataFrame,
+    ds: object,
+    batch_size: int,
+    history_size: int,
+    prediction_size: int,
+    shift: int,
+    history_columns: list,
+    meta_columns: list,
+    prediction_columns: list,
+    drop_remainder: bool,
+    history_reference_column: str = "ref",
+    meta_reference_column: str = "ref",
+    prediction_reference_column: str = "ref",
+    **kwargs,
+) -> int:
+    """Validate the dataset generator with the given parameters.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing the data.
+    ds : object
+        Dataset object used for validation.
+    batch_size : int
+        Size of each batch.
+    history_size : int
+        Size of the history window.
+    prediction_size : int
+        Size of the prediction window.
+    shift : int
+        Shift between consecutive windows.
+    history_columns : list
+        List of columns for the history window.
+    meta_columns : list
+        List of columns for the meta data.
+    prediction_columns : list
+        List of columns for the prediction.
+    drop_remainder : bool
+        Whether to drop remainder batches.
+    history_reference_column : str, optional
+        Name of the column containing history reference values.
+    meta_reference_column : str, optional
+        Name of the column containing meta reference values.
+    prediction_reference_column : str, optional
+        Name of the column containing prediction reference values.
+
+    Returns
+    -------
+    int
+        Number of batches validated.
+
+    """
     df = df.sort_index()
 
     if "id" in df.columns:
@@ -188,9 +283,34 @@ def validate_dataset(
     return batch_no
 
 
-def get_ctxmgr(
-    prediction_size, history_columns, meta_columns, history_size, prediction_columns
-):
+def validate_args(
+    prediction_size: int,
+    history_columns: List[str],
+    meta_columns: List[str],
+    history_size: int,
+    prediction_columns: List[str],
+) -> ContextManager[Union[None]]:
+    """Validate input arguments of the PatchPreprocessor class.
+
+    Parameters
+    ----------
+    prediction_size : int
+        The size of the prediction.
+    history_columns : List[str]
+        List of history columns.
+    meta_columns : List[str]
+        List of meta columns.
+    history_size : int
+        The size of the history.
+    prediction_columns : List[str]
+        List of prediction columns.
+
+    Returns
+    -------
+    ctxmgr : contextlib.ContextManager
+        Context manager indicating if input is valid or raises an AssertionError.
+
+    """
     if prediction_size <= 0:
         ctxmgr = pytest.raises(
             AssertionError,
@@ -218,5 +338,5 @@ def get_ctxmgr(
             match="No prediction columns provided",
         )
     else:
-        ctxmgr = does_not_raise()
+        ctxmgr = nullcontext()
     return ctxmgr

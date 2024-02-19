@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2022-01-07 09:02:38 (Marcel Arpogaus)
+# changed : 2024-02-19 12:52:06 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -22,25 +22,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
+
 import tensorflow as tf
 
 
 class PatchGenerator:
-    def __init__(self, window_size, shift):
-        self.window_size = window_size
-        self.shift = shift
+    """A generator class that creates windows from provided time-series data.
 
-    def __call__(self, data):
-        def sub_to_patch(sub):
-            return sub.batch(self.window_size, drop_remainder=True)
+    Attributes
+    ----------
+    window_size : int
+        The size of each patch.
+    shift : int
+        The shift between patches.
 
-        data_set = tf.data.Dataset.from_tensor_slices(data)
+    """
+
+    def __init__(self, window_size: int, shift: int) -> None:
+        """Parameters
+        ----------
+        window_size : int
+            The size of each patch.
+        shift : int
+            The shift between patches.
+
+        """
+        self.window_size: int = window_size
+        self.shift: int = shift
+
+    def __call__(self, data: tf.Tensor) -> tf.data.Dataset:
+        """Converts input data into patches of provided window size.
+
+        Parameters
+        ----------
+        data : tf.Tensor
+            The input data to generate patches from.
+
+        Returns
+        -------
+        tf.data.Dataset
+            A dataset of patches generated from the input data.
+
+        """
+
+        data_set: tf.data.Dataset = tf.data.Dataset.from_tensor_slices(data)
 
         data_set = data_set.window(
             size=self.window_size,
             shift=self.shift,
             drop_remainder=True,
-        )
-        data_set = data_set.flat_map(sub_to_patch)
+        ).flat_map(lambda sub: sub.batch(self.window_size, drop_remainder=True))
 
         return data_set

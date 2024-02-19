@@ -9,7 +9,7 @@ from tensorflow_time_series_dataset.pipeline.windowed_time_series_pipeline impor
 from tensorflow_time_series_dataset.preprocessors.groupby_dataset_generator import (
     GroupbyDatasetGenerator,
 )
-from tensorflow_time_series_dataset.utils.test import get_ctxmgr, validate_dataset
+from tensorflow_time_series_dataset.utils.test import validate_args, validate_dataset
 
 # FIXTURES ####################################################################
 
@@ -109,14 +109,14 @@ def test_batch_processor(
     ds, df, window_size, shift = patched_dataset
     prediction_size = window_size - history_size
 
-    batch_kwds = dict(
+    batch_kwargs = dict(
         history_size=history_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     )
 
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
@@ -124,7 +124,7 @@ def test_batch_processor(
         prediction_columns=prediction_columns,
     ):
         ds_batched = ds.map(
-            PatchPreprocessor(**batch_kwds),
+            PatchPreprocessor(**batch_kwargs),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         ).batch(batch_size)
 
@@ -135,7 +135,7 @@ def test_batch_processor(
             prediction_size=prediction_size,
             shift=shift,
             drop_remainder=False,
-            **batch_kwds,
+            **batch_kwargs,
         )
 
 
@@ -156,7 +156,7 @@ def test_windowed_time_series_pipeline(
         )
     )
 
-    batch_kwds = dict(
+    batch_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -166,22 +166,22 @@ def test_windowed_time_series_pipeline(
         batch_size=batch_size,
         drop_remainder=True,
     )
-    pipeline_kwds = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
+    pipeline_kwargs = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
 
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
+        pipeline = WindowedTimeSeriesPipeline(**batch_kwargs, **pipeline_kwargs)
         ds = tf.data.Dataset.from_tensors(df[used_cols])
         ds = pipeline(ds)
         validate_dataset(
             df,
             ds,
-            **batch_kwds,
+            **batch_kwargs,
         )
 
 
@@ -199,7 +199,7 @@ def test_windowed_time_series_pipeline_groupby(
 
     ids = df.id.unique()
 
-    batch_kwds = dict(
+    batch_kwargs = dict(
         history_size=history_size,
         prediction_size=prediction_size,
         shift=shift,
@@ -209,19 +209,19 @@ def test_windowed_time_series_pipeline_groupby(
         batch_size=batch_size,
         drop_remainder=False,
     )
-    pipeline_kwds = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
+    pipeline_kwargs = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
 
-    with get_ctxmgr(
+    with validate_args(
         history_size=history_size,
         prediction_size=prediction_size,
         history_columns=history_columns,
         meta_columns=meta_columns,
         prediction_columns=prediction_columns,
     ):
-        pipeline = WindowedTimeSeriesPipeline(**batch_kwds, **pipeline_kwds)
+        pipeline = WindowedTimeSeriesPipeline(**batch_kwargs, **pipeline_kwargs)
         ds = pipeline(ds)
         validate_dataset(
             df,
             ds,
-            **batch_kwds,
+            **batch_kwargs,
         )

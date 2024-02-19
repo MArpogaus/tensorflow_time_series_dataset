@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-16 10:28:30 (Marcel Arpogaus)
+# changed : 2024-02-19 12:09:44 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -24,20 +24,48 @@
 ###############################################################################
 
 
+from typing import Any
+
+import numpy as np
+
+
 class TimeSeriesSplit:
-    RIGHT = 0
-    LEFT = 1
+    RIGHT: int = 0
+    LEFT: int = 1
 
-    def __init__(self, split_size, split):
-        self.split_size = split_size
-        self.split = split
+    def __init__(self, split_size: float, split: int) -> None:
+        """Initialize the TimeSeriesSplit object.
 
-    def __call__(self, data):
+        Parameters
+        ----------
+        split_size : float
+            Proportion of split size for the time series data.
+        split : int
+            Split position indicator (LEFT or RIGHT).
+
+        """
+        self.split_size: float = split_size
+        self.split: int = split
+
+    def __call__(self, data: Any) -> Any:
+        """Splits the time series data based on the split position.
+
+        Parameters
+        ----------
+        data : Any
+            Input time series data to split.
+
+        Returns
+        -------
+        Any
+            Left or right split of the time series data based on the split position.
+
+        """
         data = data.sort_index()
         days = data.index.date
         days = days.astype("datetime64[m]")
         right = days[int(len(days) * self.split_size)]
-        left = right - 1
+        left = right - np.timedelta64(1, "m")
         if self.split == self.LEFT:
             return data.loc[: str(left)]
         else:
