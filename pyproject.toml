@@ -36,6 +36,7 @@ requires-python = ">=3.7"
 [project.optional-dependencies]
 develop = [
   'tensorflow_time_series_dataset[test]',
+  'commitizen',
   'ipykernel',
   'pre-commit',
   'python-lsp-ruff',
@@ -53,6 +54,14 @@ test = [
 
 [project.urls]
 Homepage = "https://github.com/MArpogaus/tensorflow_time_series_dataset"
+
+[tool.commitizen]
+major_version_zero = true
+name = "cz_conventional_commits"
+tag_format = "v$version"
+update_changelog_on_bump = true
+version_provider = "scm"
+version_scheme = "pep440"
 
 [tool.ruff]
 indent-width = 4
