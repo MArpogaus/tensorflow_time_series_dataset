@@ -1,0 +1,228 @@
+# Inspired by: https://github.com/othneildrew/Best-README-Template
+#+OPTIONS: toc:nil
+
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/graphs/contributors][https://img.shields.io/github/contributors/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/network/members][https://img.shields.io/github/forks/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/stargazers][https://img.shields.io/github/stars/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/issues][https://img.shields.io/github/issues/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/LICENSE][https://img.shields.io/github/license/MArpogaus/tensorflow_time_series_dataset.svg?style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/actions/workflows/test.yaml][https://img.shields.io/github/actions/workflow/status/MArpogaus/tensorflow_time_series_dataset/test.yaml.svg?label=test&style=flat-square]]
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset/blob/main/.pre-commit-config.yaml][https://img.shields.io/badge/pre--commit-enabled-brightgreen.svg?logo=pre-commit&style=flat-square]]
+[[https://linkedin.com/in/MArpogaus][https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555]]
+
+[[https://pypi.org/project/tensorflow_time_series_dataset][https://img.shields.io/pypi/v/tensorflow_time_series_dataset.svg?style=flat-square]]
+
+* TensorFlow time-series Dataset
+
+#+TOC: headlines 2 local
+
+** About The Project
+
+This python package should help you to create TensorFlow datasets for time-series data.
+
+** Installation
+
+This package is available on [[https://pypi.org/project/tensorflow-time-series-dataset/][PyPI]].
+You install it and all of its dependencies using pip:
+
+#+begin_src bash :exports nil
+  pip install tensorflow_time_series_dataset
+#+end_src
+
+** Usage
+
+*** Example Data
+Suppose you have a dataset in the following form:
+
+#+NAME: df
+#+begin_src python :session :exports both
+  import numpy as np
+  import pandas as pd
+
+  # make things determeinisteic
+  np.random.seed(1)
+
+  columns=['x1', 'x2', 'x3']
+  periods=48 * 14
+  test_df=pd.DataFrame(
+      index=pd.date_range(
+          start='1/1/1992',
+          periods=periods,
+          freq='30min'
+      ),
+      data=np.stack(
+          [
+              np.random.normal(0,0.5,periods),
+              np.random.normal(1,0.5,periods),
+              np.random.normal(2,0.5,periods)
+          ],
+          axis=1
+      ),
+      columns=columns
+  )
+  test_df.head()
+#+end_src
+
+#+RESULTS: df
+:                            x1        x2        x3
+: 1992-01-01 00:00:00  0.812173  1.205133  1.578044
+: 1992-01-01 00:30:00 -0.305878  1.429935  1.413295
+: 1992-01-01 01:00:00 -0.264086  0.550658  1.602187
+: 1992-01-01 01:30:00 -0.536484  1.159828  1.644974
+: 1992-01-01 02:00:00  0.432704  1.159077  2.005718
+
+
+*** Single-Step Prediction
+The factory class =WindowedTimeSeriesDatasetFactory= is used to create a TensorFlow dataset from pandas dataframes, or other data sources as we will see later.
+We will use it now to create a dataset with =48= historic time-steps as the input to predict a single time-step in the future.
+
+#+NAME: ds1
+#+begin_src python :session :exports both
+  from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
+
+  factory_kwargs=dict(
+      history_size=48,
+      prediction_size=1,
+      history_columns=['x1', 'x2', 'x3'],
+      prediction_columns=['x3'],
+      batch_size=4,
+      drop_remainder=True,
+  )
+  factory=Factory(**factory_kwargs)
+  ds1=factory(test_df)
+  ds1
+#+end_src
+
+This returns the following TensorFlow Dataset:
+
+#+RESULTS: ds1
+: <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 1), dtype=tf.float32, name=None))>
+
+We can plot the result with the utility function =plot_path=:
+
+#+NAME: ds1_plot
+#+begin_src python :session :results raw :exports both
+  from tensorflow_time_series_dataset.utils.visualisation import plot_patch
+
+  githubusercontent="https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/"
+
+  fig=plot_patch(
+      ds1,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
+
+  fname='.images/example1.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
+#+end_src
+
+#+RESULTS: ds1_plot
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example1.svg]]
+
+*** Multi-Step Prediction
+Lets now increase the prediction size to =6= half-hour time-steps.
+#+Name: ds2
+#+begin_src python :session :exports both
+  factory_kwargs.update(dict(
+      prediction_size=6
+  ))
+  factory=Factory(**factory_kwargs)
+  ds2=factory(test_df)
+  ds2
+#+end_src
+
+
+This returns the following TensorFlow Dataset:
+#+RESULTS: ds2
+: <_PrefetchDataset element_spec=(TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+
+Again, lets plot the results to see what changed:
+#+NAME: ds2_plot
+#+begin_src python :session :results raw :exports both
+  fig=plot_patch(
+      ds2,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
+
+  fname='.images/example2.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
+#+end_src
+
+#+RESULTS: ds2_plot
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example2.svg]]
+
+
+*** Preprocessing: Add Metadata features
+Preprocessors can be used to transform the data before it is fed into the model.
+A Preprocessor can be any python callable.
+In this case we will be using the a class called =CyclicalFeatureEncoder= to encode our one-dimensional cyclical features like the /time/ or /weekday/ to two-dimensional coordinates using a sine and cosine transformation as suggested in [this blogpost](https://www.kaggle.com/avanwyk/encoding-cyclical-features-for-deep-learning).
+#+NAME: ds3
+#+begin_src python :session :exports both
+  import itertools
+  from tensorflow_time_series_dataset.preprocessors import CyclicalFeatureEncoder
+  encs = {
+      "weekday": dict(cycl_max=6),
+      "dayofyear": dict(cycl_max=366, cycl_min=1),
+      "month": dict(cycl_max=12, cycl_min=1),
+      "time": dict(
+          cycl_max=24 * 60 - 1,
+          cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
+      ),
+  }
+  factory_kwargs.update(dict(
+      meta_columns=list(itertools.chain(*[[c+'_sin', c+'_cos'] for c in encs.keys()]))
+  ))
+  factory=Factory(**factory_kwargs)
+  for name, kwargs in encs.items():
+      factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwargs))
+
+  ds3=factory(test_df)
+  ds3
+#+end_src
+
+This returns the following TensorFlow Dataset:
+#+RESULTS: ds3
+: <_PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+
+Again, lets plot the results to see what changed:
+#+NAME: ds3_plot
+#+begin_src python :session :results raw :exports both
+  fig=plot_patch(
+      ds3,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
+
+  fname='.images/example3.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
+#+end_src
+
+#+RESULTS: ds3_plot
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example3.svg]]
+
+** Contributing
+
+Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [[file:CONTRIBUTING.md][contributing guidelines]].
+
+
+** License
+
+Distributed under the [[file:LICENSE][Apache License 2.0]]
+
+** Contact
+
+[[https://github.com/marpogaus][Marcel Arpogaus]] - [[mailto:marcel.arpogaus@gmail.com][marcel.arpogaus@gmail.com]]
+
+Project Link:
+[[https://github.com/MArpogaus/tensorflow_time_series_dataset]]
+
+** Acknowledgments
+
+Parts of this work have been funded by the Federal Ministry for the Environment, Nature Conservation and Nuclear Safety due to a decision of the German Federal Parliament (AI4Grids: 67KI2012A).
