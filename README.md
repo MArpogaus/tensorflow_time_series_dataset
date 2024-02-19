@@ -12,27 +12,27 @@
 
 # TensorFlow time-series Dataset
 
-1.  [About The Project](#org48e7e83)
-2.  [Installation](#org4124adc)
-3.  [Usage](#orgc2c9462)
-    1.  [Example Data](#org9a62649)
-    2.  [Single-Step Prediction](#org2b7f25f)
-    3.  [Multi-Step Prediction](#org96a3f28)
-    4.  [Preprocessing: Add Metadata features](#org869ce63)
-4.  [Contributing](#org8423a52)
-5.  [License](#orgaa9c5fe)
-6.  [Contact](#org5611eae)
-7.  [Acknowledgments](#orgce02d96)
+1.  [About The Project](#orgd7601fa)
+2.  [Installation](#org4baeaee)
+3.  [Usage](#org78d3afa)
+    1.  [Example Data](#org437e43f)
+    2.  [Single-Step Prediction](#org87ebbfe)
+    3.  [Multi-Step Prediction](#org11d5abf)
+    4.  [Preprocessing: Add Metadata features](#org3006a48)
+4.  [Contributing](#org5b01553)
+5.  [License](#org8585d54)
+6.  [Contact](#org66ff6ba)
+7.  [Acknowledgments](#org8768712)
 
 
-<a id="org48e7e83"></a>
+<a id="orgd7601fa"></a>
 
 ## About The Project
 
 This python package should help you to create TensorFlow datasets for time-series data.
 
 
-<a id="org4124adc"></a>
+<a id="org4baeaee"></a>
 
 ## Installation
 
@@ -42,12 +42,12 @@ You install it and all of its dependencies using pip:
     pip install tensorflow_time_series_dataset
 
 
-<a id="orgc2c9462"></a>
+<a id="org78d3afa"></a>
 
 ## Usage
 
 
-<a id="org9a62649"></a>
+<a id="org437e43f"></a>
 
 ### Example Data
 
@@ -87,7 +87,7 @@ Suppose you have a dataset in the following form:
     1992-01-01 02:00:00  0.432704  1.159077  2.005718
 
 
-<a id="org2b7f25f"></a>
+<a id="org87ebbfe"></a>
 
 ### Single-Step Prediction
 
@@ -96,7 +96,7 @@ We will use it now to create a dataset with `48` historic time-steps as the inpu
 
     from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
 
-    factory_kwds=dict(
+    factory_kwargs=dict(
         history_size=48,
         prediction_size=1,
         history_columns=['x1', 'x2', 'x3'],
@@ -104,7 +104,7 @@ We will use it now to create a dataset with `48` historic time-steps as the inpu
         batch_size=4,
         drop_remainder=True,
     )
-    factory=Factory(**factory_kwds)
+    factory=Factory(**factory_kwargs)
     ds1=factory(test_df)
     ds1
 
@@ -115,29 +115,33 @@ This returns the following TensorFlow Dataset:
 We can plot the result with the utility function `plot_path`:
 
     from tensorflow_time_series_dataset.utils.visualisation import plot_patch
+
+    githubusercontent="https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/"
+
     fig=plot_patch(
         ds1,
         figsize=(8,4),
-        **factory_kwds
+        **factory_kwargs
     )
 
     fname='.images/example1.svg'
     fig.savefig(fname)
-    fname
 
-![img](.images/example1.svg)
+    f"[[{githubusercontent}{fname}]]"
+
+![img](https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example1.svg)
 
 
-<a id="org96a3f28"></a>
+<a id="org11d5abf"></a>
 
 ### Multi-Step Prediction
 
 Lets now increase the prediction size to `6` half-hour time-steps.
 
-    factory_kwds.update(dict(
+    factory_kwargs.update(dict(
         prediction_size=6
     ))
-    factory=Factory(**factory_kwds)
+    factory=Factory(**factory_kwargs)
     ds2=factory(test_df)
     ds2
 
@@ -150,17 +154,18 @@ Again, lets plot the results to see what changed:
     fig=plot_patch(
         ds2,
         figsize=(8,4),
-        **factory_kwds
+        **factory_kwargs
     )
 
     fname='.images/example2.svg'
     fig.savefig(fname)
-    fname
 
-![img](.images/example2.svg)
+    f"[[{githubusercontent}{fname}]]"
+
+![img](https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example2.svg)
 
 
-<a id="org869ce63"></a>
+<a id="org3006a48"></a>
 
 ### Preprocessing: Add Metadata features
 
@@ -179,12 +184,13 @@ In this case we will be using the a class called `CyclicalFeatureEncoder` to enc
             cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
         ),
     }
-    factory_kwds.update(dict(
+    factory_kwargs.update(dict(
         meta_columns=list(itertools.chain(*[[c+'_sin', c+'_cos'] for c in encs.keys()]))
     ))
-    factory=Factory(**factory_kwds)
-    for name, kwds in encs.items():
-        factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwds))
+    factory=Factory(**factory_kwargs)
+    for name, kwargs in encs.items():
+        factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwargs))
+
     ds3=factory(test_df)
     ds3
 
@@ -197,31 +203,32 @@ Again, lets plot the results to see what changed:
     fig=plot_patch(
         ds3,
         figsize=(8,4),
-        **factory_kwds
+        **factory_kwargs
     )
 
     fname='.images/example3.svg'
     fig.savefig(fname)
-    fname
 
-![img](.images/example3.svg)
+    f"[[{githubusercontent}{fname}]]"
+
+![img](https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example3.svg)
 
 
-<a id="org8423a52"></a>
+<a id="org5b01553"></a>
 
 ## Contributing
 
 Any Contributions are greatly appreciated! If you have a question, an issue or would like to contribute, please read our [contributing guidelines](CONTRIBUTING.md).
 
 
-<a id="orgaa9c5fe"></a>
+<a id="org8585d54"></a>
 
 ## License
 
 Distributed under the [Apache License 2.0](LICENSE)
 
 
-<a id="org5611eae"></a>
+<a id="org66ff6ba"></a>
 
 ## Contact
 
@@ -231,7 +238,7 @@ Project Link:
 <https://github.com/MArpogaus/tensorflow_time_series_dataset>
 
 
-<a id="orgce02d96"></a>
+<a id="org8768712"></a>
 
 ## Acknowledgments
 

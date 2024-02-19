@@ -26,7 +26,7 @@ This package is available on [[https://pypi.org/project/tensorflow-time-series-d
 You install it and all of its dependencies using pip:
 
 #+begin_src bash :exports nil
-pip install tensorflow_time_series_dataset
+  pip install tensorflow_time_series_dataset
 #+end_src
 
 ** Usage
@@ -36,31 +36,31 @@ Suppose you have a dataset in the following form:
 
 #+NAME: df
 #+begin_src python :session :exports both
-import numpy as np
-import pandas as pd
+  import numpy as np
+  import pandas as pd
 
-# make things determeinisteic
-np.random.seed(1)
+  # make things determeinisteic
+  np.random.seed(1)
 
-columns=['x1', 'x2', 'x3']
-periods=48 * 14
-test_df=pd.DataFrame(
-    index=pd.date_range(
-        start='1/1/1992',
-        periods=periods,
-        freq='30min'
-    ),
-    data=np.stack(
-        [
-            np.random.normal(0,0.5,periods),
-            np.random.normal(1,0.5,periods),
-            np.random.normal(2,0.5,periods)
-        ],
-        axis=1
-    ),
-    columns=columns
-)
-test_df.head()
+  columns=['x1', 'x2', 'x3']
+  periods=48 * 14
+  test_df=pd.DataFrame(
+      index=pd.date_range(
+          start='1/1/1992',
+          periods=periods,
+          freq='30min'
+      ),
+      data=np.stack(
+          [
+              np.random.normal(0,0.5,periods),
+              np.random.normal(1,0.5,periods),
+              np.random.normal(2,0.5,periods)
+          ],
+          axis=1
+      ),
+      columns=columns
+  )
+  test_df.head()
 #+end_src
 
 #+RESULTS: df
@@ -78,19 +78,19 @@ We will use it now to create a dataset with =48= historic time-steps as the inpu
 
 #+NAME: ds1
 #+begin_src python :session :exports both
-from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
+  from tensorflow_time_series_dataset.factory import WindowedTimeSeriesDatasetFactory as Factory
 
-factory_kwds=dict(
-    history_size=48,
-    prediction_size=1,
-    history_columns=['x1', 'x2', 'x3'],
-    prediction_columns=['x3'],
-    batch_size=4,
-    drop_remainder=True,
-)
-factory=Factory(**factory_kwds)
-ds1=factory(test_df)
-ds1
+  factory_kwargs=dict(
+      history_size=48,
+      prediction_size=1,
+      history_columns=['x1', 'x2', 'x3'],
+      prediction_columns=['x3'],
+      batch_size=4,
+      drop_remainder=True,
+  )
+  factory=Factory(**factory_kwargs)
+  ds1=factory(test_df)
+  ds1
 #+end_src
 
 This returns the following TensorFlow Dataset:
@@ -101,32 +101,36 @@ This returns the following TensorFlow Dataset:
 We can plot the result with the utility function =plot_path=:
 
 #+NAME: ds1_plot
-#+begin_src python :session :results file :exports both
-from tensorflow_time_series_dataset.utils.visualisation import plot_patch
-fig=plot_patch(
-    ds1,
-    figsize=(8,4),
-    ,**factory_kwds
-)
+#+begin_src python :session :results raw :exports both
+  from tensorflow_time_series_dataset.utils.visualisation import plot_patch
 
-fname='.images/example1.svg'
-fig.savefig(fname)
-fname
+  githubusercontent="https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/"
+
+  fig=plot_patch(
+      ds1,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
+
+  fname='.images/example1.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
 #+end_src
 
 #+RESULTS: ds1_plot
-[[file:.images/example1.svg]]
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example1.svg]]
 
 *** Multi-Step Prediction
 Lets now increase the prediction size to =6= half-hour time-steps.
 #+Name: ds2
 #+begin_src python :session :exports both
-factory_kwds.update(dict(
-    prediction_size=6
-))
-factory=Factory(**factory_kwds)
-ds2=factory(test_df)
-ds2
+  factory_kwargs.update(dict(
+      prediction_size=6
+  ))
+  factory=Factory(**factory_kwargs)
+  ds2=factory(test_df)
+  ds2
 #+end_src
 
 
@@ -136,20 +140,22 @@ This returns the following TensorFlow Dataset:
 
 Again, lets plot the results to see what changed:
 #+NAME: ds2_plot
-#+begin_src python :session :results file :exports both
-fig=plot_patch(
-    ds2,
-    figsize=(8,4),
-    **factory_kwds
-)
+#+begin_src python :session :results raw :exports both
+  fig=plot_patch(
+      ds2,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
 
-fname='.images/example2.svg'
-fig.savefig(fname)
-fname
+  fname='.images/example2.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
 #+end_src
 
 #+RESULTS: ds2_plot
-[[file:.images/example2.svg]]
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example2.svg]]
+
 
 *** Preprocessing: Add Metadata features
 Preprocessors can be used to transform the data before it is fed into the model.
@@ -157,47 +163,49 @@ A Preprocessor can be any python callable.
 In this case we will be using the a class called =CyclicalFeatureEncoder= to encode our one-dimensional cyclical features like the /time/ or /weekday/ to two-dimensional coordinates using a sine and cosine transformation as suggested in [this blogpost](https://www.kaggle.com/avanwyk/encoding-cyclical-features-for-deep-learning).
 #+NAME: ds3
 #+begin_src python :session :exports both
-import itertools
-from tensorflow_time_series_dataset.preprocessors import CyclicalFeatureEncoder
-encs = {
-    "weekday": dict(cycl_max=6),
-    "dayofyear": dict(cycl_max=366, cycl_min=1),
-    "month": dict(cycl_max=12, cycl_min=1),
-    "time": dict(
-        cycl_max=24 * 60 - 1,
-        cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
-    ),
-}
-factory_kwds.update(dict(
-    meta_columns=list(itertools.chain(*[[c+'_sin', c+'_cos'] for c in encs.keys()]))
-))
-factory=Factory(**factory_kwds)
-for name, kwds in encs.items():
-    factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwds))
-ds3=factory(test_df)
-ds3
+  import itertools
+  from tensorflow_time_series_dataset.preprocessors import CyclicalFeatureEncoder
+  encs = {
+      "weekday": dict(cycl_max=6),
+      "dayofyear": dict(cycl_max=366, cycl_min=1),
+      "month": dict(cycl_max=12, cycl_min=1),
+      "time": dict(
+          cycl_max=24 * 60 - 1,
+          cycl_getter=lambda df, k: df.index.hour * 60 + df.index.minute,
+      ),
+  }
+  factory_kwargs.update(dict(
+      meta_columns=list(itertools.chain(*[[c+'_sin', c+'_cos'] for c in encs.keys()]))
+  ))
+  factory=Factory(**factory_kwargs)
+  for name, kwargs in encs.items():
+      factory.add_preprocessor(CyclicalFeatureEncoder(name, **kwargs))
+
+  ds3=factory(test_df)
+  ds3
 #+end_src
 
 This returns the following TensorFlow Dataset:
 #+RESULTS: ds3
-: <PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
+: <_PrefetchDataset element_spec=((TensorSpec(shape=(4, 48, 3), dtype=tf.float32, name=None), TensorSpec(shape=(4, 1, 8), dtype=tf.float32, name=None)), TensorSpec(shape=(4, 6, 1), dtype=tf.float32, name=None))>
 
 Again, lets plot the results to see what changed:
 #+NAME: ds3_plot
-#+begin_src python :session :results file :exports both
-fig=plot_patch(
-    ds3,
-    figsize=(8,4),
-    **factory_kwds
-)
+#+begin_src python :session :results raw :exports both
+  fig=plot_patch(
+      ds3,
+      figsize=(8,4),
+      ,**factory_kwargs
+  )
 
-fname='.images/example3.svg'
-fig.savefig(fname)
-fname
+  fname='.images/example3.svg'
+  fig.savefig(fname)
+
+  f"[[{githubusercontent}{fname}]]"
 #+end_src
 
 #+RESULTS: ds3_plot
-[[file:.images/example3.svg]]
+[[https://raw.githubusercontent.com/MArpogaus/tensorflow_time_series_dataset/master/.images/example3.svg]]
 
 ** Contributing
 
