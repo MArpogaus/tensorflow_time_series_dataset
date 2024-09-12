@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-19 12:52:06 (Marcel Arpogaus)
+# changed : 2024-09-12 15:52:32 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -35,20 +35,25 @@ class PatchGenerator:
         The size of each patch.
     shift : int
         The shift between patches.
+    filter_nans : int
+        Apply a filter function to drop patches containing NaN values.
 
     """
 
-    def __init__(self, window_size: int, shift: int) -> None:
+    def __init__(self, window_size: int, shift: int, filter_nans: bool) -> None:
         """Parameters
         ----------
         window_size : int
             The size of each patch.
         shift : int
             The shift between patches.
+        filter_nans : int
+            If True, apply a filter function to drop patches containing NaN values.
 
         """
         self.window_size: int = window_size
         self.shift: int = shift
+        self.filter_nans: bool = filter_nans
 
     def __call__(self, data: tf.Tensor) -> tf.data.Dataset:
         """Converts input data into patches of provided window size.
@@ -71,6 +76,18 @@ class PatchGenerator:
             size=self.window_size,
             shift=self.shift,
             drop_remainder=True,
-        ).flat_map(lambda sub: sub.batch(self.window_size, drop_remainder=True))
+        )
+
+        def sub_to_patch(sub):
+            return sub.batch(self.window_size, drop_remainder=True)
+
+        data_set = data_set.flat_map(sub_to_patch)
+
+        if self.filter_nans:
+
+            def filter_func(patch):
+                return tf.reduce_all(tf.logical_not(tf.math.is_nan(patch)))
+
+            data_set = data_set.filter(filter_func)
 
         return data_set

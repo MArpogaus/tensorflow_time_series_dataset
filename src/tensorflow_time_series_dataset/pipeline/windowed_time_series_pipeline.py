@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-02-19 12:53:06 (Marcel Arpogaus)
+# changed : 2024-09-12 16:01:27 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -64,6 +64,8 @@ class WindowedTimeSeriesPipeline:
         Whether to cache the dataset in memory or to a specific file.
     drop_remainder : bool
         Whether to drop the remainder of batches that are not equal to the batch size.
+    filter_nans : int
+        Apply a filter function to drop patches containing NaN values.
 
     Raises
     ------
@@ -85,6 +87,7 @@ class WindowedTimeSeriesPipeline:
         shuffle_buffer_size: int,
         cache: Union[str, bool],
         drop_remainder: bool,
+        filter_nans: bool,
     ) -> None:
         assert (
             prediction_size > 0
@@ -101,6 +104,7 @@ class WindowedTimeSeriesPipeline:
         self.shuffle_buffer_size = shuffle_buffer_size
         self.cache = cache
         self.drop_remainder = drop_remainder
+        self.filter_nans = filter_nans
 
     def __call__(self, ds: Dataset) -> Dataset:
         """Applies the pipeline operations to the given dataset.
@@ -117,7 +121,7 @@ class WindowedTimeSeriesPipeline:
 
         """
         ds = ds.interleave(
-            PatchGenerator(self.window_size, self.shift),
+            PatchGenerator(self.window_size, self.shift, self.filter_nans),
             cycle_length=self.cycle_length,
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
