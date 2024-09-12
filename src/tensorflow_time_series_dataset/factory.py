@@ -4,7 +4,7 @@
 # author  : Marcel Arpogaus <marcel dot arpogaus at gmail dot com>
 #
 # created : 2022-01-07 09:02:38 (Marcel Arpogaus)
-# changed : 2024-09-12 15:43:12 (Marcel Arpogaus)
+# changed : 2024-09-12 16:21:24 (Marcel Arpogaus)
 # DESCRIPTION #################################################################
 # ...
 # LICENSE #####################################################################
@@ -53,7 +53,7 @@ class WindowedTimeSeriesDatasetFactory:
         "cycle_length": 1,
         "shuffle_buffer_size": 1000,
         "cache": True,
-        "filter_nans": True,
+        "filter_nans": False,
     }
 
     def __init__(
