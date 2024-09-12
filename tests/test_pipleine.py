@@ -196,7 +196,9 @@ def test_windowed_time_series_pipeline(
         batch_size=batch_size,
         drop_remainder=True,
     )
-    pipeline_kwargs = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
+    pipeline_kwargs = dict(
+        cycle_length=1, shuffle_buffer_size=100, cache=True, filter_nans=False
+    )
 
     with validate_args(
         history_size=history_size,
@@ -239,7 +241,9 @@ def test_windowed_time_series_pipeline_groupby(
         batch_size=batch_size,
         drop_remainder=False,
     )
-    pipeline_kwargs = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
+    pipeline_kwargs = dict(
+        cycle_length=len(ids), shuffle_buffer_size=1000, cache=True, filter_nans=False
+    )
 
     with validate_args(
         history_size=history_size,
