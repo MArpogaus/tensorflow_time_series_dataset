@@ -34,7 +34,7 @@ def patched_dataset(
 
     ds = tf.data.Dataset.from_tensors(df[sorted(used_cols)])
     ds = ds.interleave(
-        PatchGenerator(window_size=window_size, shift=shift),
+        PatchGenerator(window_size=window_size, shift=shift, filter_nans=False),
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
     return ds, df, window_size, shift
@@ -53,7 +53,7 @@ def test_patch_generator(time_series_df, window_size, shift):
 
     ds = tf.data.Dataset.from_tensors(df)
     ds_patched = ds.interleave(
-        PatchGenerator(window_size=window_size, shift=shift),
+        PatchGenerator(window_size=window_size, shift=shift, filter_nans=False),
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
     for i, patch in enumerate(ds_patched.as_numpy_iterator()):
@@ -63,6 +63,36 @@ def test_patch_generator(time_series_df, window_size, shift):
         expected_values = df.iloc[idx : idx + window_size]
         assert np.all(patch == expected_values), "Patch contains wrong data"
     assert i + 1 == patches, "Not enough patches"
+
+
+@pytest.mark.parametrize("window_size,shift", [(2 * 48, 48), (48 + 1, 1)])
+def test_patch_generator_filter_nans(time_series_df, window_size, shift):
+    df = time_series_df.set_index("date_time")
+    # randomly set 20% of elemnts in the dataset for nans
+
+    df = time_series_df.set_index("date_time")
+    nan_mask = np.random.default_rng(1).uniform(0, 1, df.shape) < 0.01
+    df[nan_mask] = np.nan
+
+    initial_size = window_size - shift
+    data_size = df.index.size - initial_size
+    patches = data_size // shift
+
+    expected_shape = (window_size, len(df.columns))
+
+    ds = tf.data.Dataset.from_tensors(df)
+    ds_patched = ds.interleave(
+        PatchGenerator(window_size=window_size, shift=shift, filter_nans=True),
+        num_parallel_calls=tf.data.experimental.AUTOTUNE,
+    )
+    for i, patch in enumerate(ds_patched.as_numpy_iterator()):
+        assert patch.shape == expected_shape, "Wrong shape"
+        x1 = patch[0, 0]
+        idx = int(x1 % 1e5)
+        expected_values = df.iloc[idx : idx + window_size]
+        assert np.all(patch == expected_values), "Patch contains wrong data"
+        assert not np.isnan(patch).any(), "Patch contains NaNs."
+    assert i + 1 < patches, "No patches have been dropped"
 
 
 @pytest.mark.parametrize("window_size,shift", [(2 * 48, 48), (48 + 1, 1)])
@@ -78,7 +108,7 @@ def test_patch_generator_groupby(groupby_dataset, window_size, shift):
     expected_shape = (window_size, len(columns))
 
     ds_patched = ds.interleave(
-        PatchGenerator(window_size=window_size, shift=shift),
+        PatchGenerator(window_size=window_size, shift=shift, filter_nans=True),
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
 
@@ -166,7 +196,9 @@ def test_windowed_time_series_pipeline(
         batch_size=batch_size,
         drop_remainder=True,
     )
-    pipeline_kwargs = dict(cycle_length=1, shuffle_buffer_size=100, cache=True)
+    pipeline_kwargs = dict(
+        cycle_length=1, shuffle_buffer_size=100, cache=True, filter_nans=False
+    )
 
     with validate_args(
         history_size=history_size,
@@ -209,7 +241,9 @@ def test_windowed_time_series_pipeline_groupby(
         batch_size=batch_size,
         drop_remainder=False,
     )
-    pipeline_kwargs = dict(cycle_length=len(ids), shuffle_buffer_size=1000, cache=True)
+    pipeline_kwargs = dict(
+        cycle_length=len(ids), shuffle_buffer_size=1000, cache=True, filter_nans=False
+    )
 
     with validate_args(
         history_size=history_size,

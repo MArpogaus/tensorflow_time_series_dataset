@@ -1,3 +1,13 @@
+## v0.2.0 (2024-09-13)
+
+### Feat
+
+- allows to filter out patches containing NaN values
+
+### Fix
+
+- disable NaN filtering per default to ensure errors if they are unexpected
+
 ## v0.1.2 (2024-02-19)
 
 ## v0.1.1 (2024-02-19)
