@@ -69,7 +69,6 @@ class PatchGenerator:
             A dataset of patches generated from the input data.
 
         """
-
         data_set: tf.data.Dataset = tf.data.Dataset.from_tensor_slices(data)
 
         data_set = data_set.window(
